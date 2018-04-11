@@ -18,8 +18,8 @@
 
 package org.eclipse.jetty.gcloud.session;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -43,14 +43,14 @@ public class GCloudTestSuite
     public static GCloudSessionTestSupport __testSupport;
     
     
-    @BeforeClass
+    @BeforeAll
     public static void setUp () throws Exception
     {
         __testSupport = new GCloudSessionTestSupport();
         __testSupport.setUp();
     }
     
-    @AfterClass
+    @AfterAll
     public static void tearDown () throws Exception
     {
         __testSupport.tearDown();

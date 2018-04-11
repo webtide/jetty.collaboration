@@ -18,6 +18,11 @@
 
 package org.eclipse.jetty.client.ssl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
@@ -43,10 +48,10 @@ import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.toolchain.test.MavenTestingUtils;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SslBytesClientTest extends SslBytesTest
 {
@@ -56,7 +61,7 @@ public class SslBytesClientTest extends SslBytesTest
     private SSLServerSocket acceptor;
     private SimpleProxy proxy;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception
     {
         threadPool = Executors.newCachedThreadPool();
@@ -79,7 +84,7 @@ public class SslBytesClientTest extends SslBytesTest
         logger.info(":{} <==> :{}", proxy.getPort(), serverPort);
     }
 
-    @After
+    @AfterEach
     public void destroy() throws Exception
     {
         if (acceptor != null)
@@ -99,7 +104,7 @@ public class SslBytesClientTest extends SslBytesTest
         FutureResponseListener listener = new FutureResponseListener(request);
         request.scheme(HttpScheme.HTTPS.asString()).send(listener);
 
-        Assert.assertTrue(proxy.awaitClient(5, TimeUnit.SECONDS));
+        assertTrue(proxy.awaitClient(5, TimeUnit.SECONDS));
 
         try (SSLSocket server = (SSLSocket)acceptor.accept())
         {
@@ -176,7 +181,7 @@ public class SslBytesClientTest extends SslBytesTest
         FutureResponseListener listener = new FutureResponseListener(request);
         request.scheme(HttpScheme.HTTPS.asString()).send(listener);
 
-        Assert.assertTrue(proxy.awaitClient(5, TimeUnit.SECONDS));
+        assertTrue(proxy.awaitClient(5, TimeUnit.SECONDS));
 
         try (SSLSocket server = (SSLSocket)acceptor.accept())
         {
@@ -234,15 +239,7 @@ public class SslBytesClientTest extends SslBytesTest
 
             // Trigger a read to have the server write the final renegotiation steps
             server.setSoTimeout(100);
-            try
-            {
-                serverInput.read();
-                Assert.fail();
-            }
-            catch (SocketTimeoutException x)
-            {
-                // Expected
-            }
+            assertThrows(SocketTimeoutException.class, ()->serverInput.read());
 
             // Renegotiation Handshake
             record = proxy.readFromServer();
@@ -292,7 +289,7 @@ public class SslBytesClientTest extends SslBytesTest
         FutureResponseListener listener = new FutureResponseListener(request);
         request.scheme(HttpScheme.HTTPS.asString()).send(listener);
 
-        Assert.assertTrue(proxy.awaitClient(5, TimeUnit.SECONDS));
+        assertTrue(proxy.awaitClient(5, TimeUnit.SECONDS));
 
         try (SSLSocket server = (SSLSocket)acceptor.accept())
         {

@@ -18,22 +18,6 @@
 
 package org.eclipse.jetty.http2.client.http;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.eclipse.jetty.client.AbstractConnectionPool;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpDestination;
@@ -58,7 +42,26 @@ import org.eclipse.jetty.util.Promise;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class MaxConcurrentStreamsTest extends AbstractTest
 {
@@ -116,7 +119,7 @@ public class MaxConcurrentStreamsTest extends AbstractTest
                 });
 
         // When the first request returns, the second must be sent.
-        Assert.assertTrue(latch.await(5 * sleep, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(5 * sleep, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -135,7 +138,7 @@ public class MaxConcurrentStreamsTest extends AbstractTest
                                 .path("/" + i + "_" + j)
                                 .timeout(5, TimeUnit.SECONDS)
                                 .send();
-                        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+                        assertEquals(HttpStatus.OK_200, response.getStatus());
                     }
                     catch (Throwable x)
                     {
@@ -262,10 +265,10 @@ public class MaxConcurrentStreamsTest extends AbstractTest
 
         // The last exchange should remain in the queue.
         HttpDestinationOverHTTP2 destination = (HttpDestinationOverHTTP2)client.getDestination("http", "localhost", connector.getLocalPort());
-        Assert.assertEquals(1, destination.getHttpExchanges().size());
-        Assert.assertEquals(path, destination.getHttpExchanges().peek().getRequest().getPath());
+        assertEquals(1, destination.getHttpExchanges().size());
+        assertEquals(path, destination.getHttpExchanges().peek().getRequest().getPath());
 
-        Assert.assertTrue(latch.await(5 * sleep, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(5 * sleep, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -293,7 +296,7 @@ public class MaxConcurrentStreamsTest extends AbstractTest
         // Must be able to send another request.
         ContentResponse response = client.newRequest("localhost", connector.getLocalPort()).path("/check").send();
 
-        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 
     @Test
@@ -321,7 +324,7 @@ public class MaxConcurrentStreamsTest extends AbstractTest
         }
 
         // The requests should be processed in parallel, not sequentially.
-        Assert.assertTrue(latch.await(maxConcurrent * sleep / 2, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(maxConcurrent * sleep / 2, TimeUnit.MILLISECONDS));
     }
 
     @Test

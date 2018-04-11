@@ -18,15 +18,12 @@
 
 package org.eclipse.jetty.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import org.hamcrest.Matchers;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+
+import org.junit.jupiter.api.Test;
 
 
 public class MultiExceptionTest
@@ -83,7 +80,7 @@ public class MultiExceptionTest
         {
             assertTrue(e.getCause()==io);
         }
-        
+
         try
         {
             me.ifExceptionThrowSuppressed();
@@ -107,7 +104,7 @@ public class MultiExceptionTest
         {
             assertTrue(run==e);
         }
-        
+
         assertEquals("Stack trace should not be filled out", 0, me.getStackTrace().length);
     }
 
@@ -118,11 +115,11 @@ public class MultiExceptionTest
         me.add(io);
         me.add(run);
         assertEquals(2,me.size());
-        
+
         assertEquals("Stack trace should not be filled out", 0, me.getStackTrace().length);
         return me;
     }
-    
+
     private MultiException multiExceptionWithRtIo() {
         MultiException me = new MultiException();
         RuntimeException run = new RuntimeException("one");
@@ -130,11 +127,11 @@ public class MultiExceptionTest
         me.add(run);
         me.add(io);
         assertEquals(2,me.size());
-        
+
         assertEquals("Stack trace should not be filled out", 0, me.getStackTrace().length);
         return me;
     }
-    
+
     @Test
     public void testTwo() throws Exception
     {
@@ -185,7 +182,7 @@ public class MultiExceptionTest
             assertTrue(e.getCause() instanceof MultiException);
             assertTrue(e.getStackTrace().length > 0);
         }
-        
+
         me = multiExceptionWithRtIo();
         try
         {
@@ -209,13 +206,13 @@ public class MultiExceptionTest
         me.add(io);
         me.add(run);
 
-        
+
         try {
             me.ifExceptionThrow();
         } catch (MultiException e) {
             assertEquals(io,e.getCause());
             assertEquals(2,e.size());
         }
-        
+
     }
 }

@@ -18,6 +18,7 @@
 
 package org.eclipse.jetty.websocket.server;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
@@ -35,31 +36,30 @@ import org.eclipse.jetty.websocket.common.test.BlockheadClientRequest;
 import org.eclipse.jetty.websocket.common.test.BlockheadConnection;
 import org.eclipse.jetty.websocket.common.test.Timeouts;
 import org.eclipse.jetty.websocket.server.helper.EchoServlet;
-import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class FragmentExtensionTest
 {
     private static SimpleServletServer server;
     private static BlockheadClient client;
 
-    @BeforeClass
+    @BeforeAll
     public static void startServer() throws Exception
     {
         server = new SimpleServletServer(new EchoServlet());
         server.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void stopServer()
     {
         server.stop();
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void startClient() throws Exception
     {
         client = new BlockheadClient();
@@ -67,7 +67,7 @@ public class FragmentExtensionTest
         client.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void stopClient() throws Exception
     {
         client.stop();
@@ -111,7 +111,7 @@ public class FragmentExtensionTest
             HttpFields responseHeaders = clientConn.getUpgradeResponseHeaders();
             HttpField extensionHeader = responseHeaders.getField(HttpHeader.SEC_WEBSOCKET_EXTENSIONS);
 
-            Assert.assertThat("Response",extensionHeader.getValue(),containsString("fragment"));
+            assertThat("Response",extensionHeader.getValue(),containsString("fragment"));
 
             String msg = "Sent as a long message that should be split";
             clientConn.write(new TextFrame().setPayload(msg));
@@ -121,7 +121,7 @@ public class FragmentExtensionTest
             for (int i = 0; i < parts.length; i++)
             {
                 WebSocketFrame frame = frames.poll(Timeouts.POLL_EVENT, Timeouts.POLL_EVENT_UNIT);
-                Assert.assertThat("text[" + i + "].payload",frame.getPayloadAsUTF8(),is(parts[i]));
+                assertThat("text[" + i + "].payload",frame.getPayloadAsUTF8(),is(parts[i]));
             }
         }
     }

@@ -28,22 +28,19 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.jetty.toolchain.test.AdvancedRunner;
-import org.eclipse.jetty.toolchain.test.annotation.Stress;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.junit.Assume;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
-@RunWith(AdvancedRunner.class)
+@DisabledIfSystemProperty(named = "env", matches = "ci") // TODO: HIGH_CPU, HIGH_MEMORY, review
 public class QueueBenchmarkTest
 {
     private static final Logger logger = Log.getLogger(QueueBenchmarkTest.class);
     private static final Runnable ELEMENT = () -> {};
     private static final Runnable END = () -> {};
 
-    @Stress("High CPU")
     @Test
     public void testQueues() throws Exception
     {
@@ -62,7 +59,6 @@ public class QueueBenchmarkTest
         testQueues(readers, writers, iterations, queues, false);
     }
 
-    @Stress("High CPU")
     @Test
     public void testBlockingQueues() throws Exception
     {

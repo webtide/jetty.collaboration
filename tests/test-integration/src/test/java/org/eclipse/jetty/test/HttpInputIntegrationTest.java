@@ -18,6 +18,10 @@
 
 package org.eclipse.jetty.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.startsWith;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Inet4Address;
@@ -26,11 +30,11 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import javax.net.ssl.SSLSocket;
 import javax.servlet.AsyncContext;
@@ -61,20 +65,14 @@ import org.eclipse.jetty.util.BufferUtil;
 import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.hamcrest.Matchers;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
-
-@RunWith(Parameterized.class)
 public class HttpInputIntegrationTest
 {
-    
     enum Mode { BLOCKING, ASYNC_DISPATCHED, ASYNC_OTHER_DISPATCHED, ASYNC_OTHER_WAIT }
     public final static String EOF = "__EOF__";
     public final static String DELAY = "__DELAY__";
@@ -85,7 +83,7 @@ public class HttpInputIntegrationTest
     private static HttpConfiguration __sslConfig;
     private static SslContextFactory __sslContextFactory;
     
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception
     {
         __config = new HttpConfiguration();
@@ -141,7 +139,7 @@ public class HttpInputIntegrationTest
         __server.start();
     }
     
-    @AfterClass
+    @AfterAll
     public static void afterClass() throws Exception
     {
         __server.stop();
@@ -162,11 +160,9 @@ public class HttpInputIntegrationTest
         String send(String uri,int delayMs, Boolean delayInFrame, int contentLength, List<String> content) throws Exception; 
     }
 
-    @Parameterized.Parameters
-    public static Collection<Object[]> data()
+    public static Stream<Arguments> scenarios()
     {
-        List<Object[]> tests = new ArrayList<>();
-        
+        List<Scenario> tests = new ArrayList<>();
 
         // TODO other client types!
         // test with the following clients/protocols:
@@ -205,46 +201,22 @@ public class HttpInputIntegrationTest
                         // + known length + EOF
                         // + known length + content + EOF
                         // + known length + content + content + EOF
-                        
-                        tests.add(new Object[]{tests.size(),client,mode,dispatch,delayWithinFrame,200,0,-1,new String[]{}});
-                        tests.add(new Object[]{tests.size(),client,mode,dispatch,delayWithinFrame,200,8,-1,new String[]{"content0"}});
-                        tests.add(new Object[]{tests.size(),client,mode,dispatch,delayWithinFrame,200,16,-1,new String[]{"content0","CONTENT1"}});
-                        
-                        tests.add(new Object[]{tests.size(),client,mode,dispatch,delayWithinFrame,200,0,0,new String[]{}});
-                        tests.add(new Object[]{tests.size(),client,mode,dispatch,delayWithinFrame,200,8,8,new String[]{"content0"}});
-                        tests.add(new Object[]{tests.size(),client,mode,dispatch,delayWithinFrame,200,16,16,new String[]{"content0","CONTENT1"}});
+
+                        tests.add(new Scenario(client, mode, dispatch, delayWithinFrame, 200, 0, -1));
+                        tests.add(new Scenario(client, mode, dispatch, delayWithinFrame, 200, 8, -1, "content0"));
+                        tests.add(new Scenario(client, mode, dispatch, delayWithinFrame, 200, 16, -1, "content0", "CONTENT1"));
+
+                        tests.add(new Scenario(client, mode, dispatch, delayWithinFrame, 200, 0, 0));
+                        tests.add(new Scenario(client, mode, dispatch, delayWithinFrame, 200, 8, 8, "content0"));
+                        tests.add(new Scenario(client, mode, dispatch, delayWithinFrame, 200, 16, 16, "content0", "CONTENT1"));
                         
                     }
                 }
             }
         }
-        return tests;
+        return tests.stream().map(Arguments::of);
     }
-    
 
-    final int _id;
-    final Class<? extends TestClient> _client;
-    final Mode _mode;
-    final Boolean _delay;
-    final int _status;
-    final int _read;
-    final int _length;
-    final List<String> _send;
-    
-    public HttpInputIntegrationTest(int id,Class<? extends TestClient> client, Mode mode,boolean dispatch,Boolean delay,int status,int read,int length,String... send)
-    {
-        _id=id;
-        _client=client;
-        _mode=mode;
-        __config.setDelayDispatchUntilContent(dispatch);
-        _delay=delay;
-        _status=status;
-        _read=read;
-        _length=length;
-        _send = Arrays.asList(send);
-    }
-    
-    
     private static void runmode(Mode mode,final Request request, final Runnable test)
     {
         switch(mode)
@@ -276,11 +248,11 @@ public class HttpInputIntegrationTest
                 try
                 {
                     if (!latch.await(5,TimeUnit.SECONDS))
-                        Assert.fail();
+                        fail("latch expired");
                 }
                 catch(Exception e)
                 {
-                    Assert.fail();
+                    fail(e);
                 }
                 break;
             }   
@@ -296,7 +268,7 @@ public class HttpInputIntegrationTest
                         try
                         {
                             if (!latch.await(5,TimeUnit.SECONDS))
-                                Assert.fail();
+                                fail("latch expired");
                             
                             // Spin until state change
                             HttpChannelState.State s=request.getHttpChannelState().getState();
@@ -324,32 +296,30 @@ public class HttpInputIntegrationTest
         
     }
     
-    @Test
-    public void testOne() throws Exception
+    @ParameterizedTest(name = "[{index}] TEST {0}")
+    @MethodSource("scenarios")
+    public void testOne(Scenario scenario) throws Exception
     {
-        System.err.printf("[%d] TEST   c=%s, m=%s, delayDispatch=%b delayInFrame=%s content-length:%d expect=%d read=%d content:%s%n",_id,_client.getSimpleName(),_mode,__config.isDelayDispatchUntilContent(),_delay,_length,_status,_read,_send);
-
-        TestClient client=_client.getDeclaredConstructor().newInstance();
-        String response = client.send("/ctx/test?mode="+_mode,50,_delay,_length,_send);
+        TestClient client=scenario._client.getDeclaredConstructor().newInstance();
+        String response = client.send("/ctx/test?mode="+scenario._mode,50,scenario._delay,scenario._length,scenario._send);
         
         int sum=0;
-        for (String s:_send)
+        for (String s:scenario._send)
             for (char c : s.toCharArray())
                 sum+=c;
         
         assertThat(response,startsWith("HTTP"));
-        assertThat(response,Matchers.containsString(" "+_status+" "));
-        assertThat(response,Matchers.containsString("read="+_read));
+        assertThat(response,Matchers.containsString(" "+scenario._status+" "));
+        assertThat(response,Matchers.containsString("read="+scenario._read));
         assertThat(response,Matchers.containsString("sum="+sum));
     }
-    
-    @Test
-    public void testStress() throws Exception
-    {
-        System.err.printf("[%d] STRESS c=%s, m=%s, delayDispatch=%b delayInFrame=%s content-length:%d expect=%d read=%d content:%s%n",_id,_client.getSimpleName(),_mode,__config.isDelayDispatchUntilContent(),_delay,_length,_status,_read,_send);
 
+    @ParameterizedTest(name = "[{index}] STRESS {0}")
+    @MethodSource("scenarios")
+    public void testStress(Scenario scenario) throws Exception
+    {
         int sum=0;
-        for (String s:_send)
+        for (String s:scenario._send)
             for (char c : s.toCharArray())
                 sum+=c;
         final int summation=sum;
@@ -368,13 +338,13 @@ public class HttpInputIntegrationTest
             {
                 try
                 {
-                    TestClient client=_client.getDeclaredConstructor().newInstance();
+                    TestClient client=scenario._client.getDeclaredConstructor().newInstance();
                     for (int j=0;j<loops;j++)
                     {
-                        String response = client.send("/ctx/test?mode="+_mode,10,_delay,_length,_send);
+                        String response = client.send("/ctx/test?mode="+scenario._mode,10,scenario._delay,scenario._length,scenario._send);
                         assertThat(response,startsWith("HTTP"));
-                        assertThat(response,Matchers.containsString(" "+_status+" "));
-                        assertThat(response,Matchers.containsString("read="+_read));
+                        assertThat(response,Matchers.containsString(" "+scenario._status+" "));
+                        assertThat(response,Matchers.containsString("read="+scenario._read));
                         assertThat(response,Matchers.containsString("sum="+summation));
                         count.incrementAndGet();
                     }
@@ -714,5 +684,33 @@ public class HttpInputIntegrationTest
         }
     }
 
-    
+    public static class Scenario
+    {
+        final Class<? extends TestClient> _client;
+        final Mode _mode;
+        final Boolean _delay;
+        final int _status;
+        final int _read;
+        final int _length;
+        final List<String> _send;
+
+        public Scenario(Class<? extends TestClient> client, Mode mode, boolean dispatch, Boolean delay, int status, int read, int length, String... send)
+        {
+            _client=client;
+            _mode=mode;
+            __config.setDelayDispatchUntilContent(dispatch);
+            _delay=delay;
+            _status=status;
+            _read=read;
+            _length=length;
+            _send = Arrays.asList(send);
+        }
+
+        @Override
+        public String toString()
+        {
+            return String.format("c=%s, m=%s, delayDispatch=%b delayInFrame=%s content-length:%d expect=%d read=%d content:%s%n",
+                    _client.getSimpleName(), _mode, __config.isDelayDispatchUntilContent(), _delay, _length, _status, _read, _send);
+        }
+    }
 }

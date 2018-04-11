@@ -22,10 +22,11 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,19 +37,14 @@ import javax.net.ssl.SSLEngine;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
 import org.eclipse.jetty.util.log.StacklessLogging;
 import org.eclipse.jetty.util.resource.Resource;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SslContextFactoryTest
 {
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     private SslContextFactory cf;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         cf = new SslContextFactory();
@@ -159,11 +155,11 @@ public class SslContextFactoryTest
         cf.setKeyManagerPassword("wrong_keypwd");
         cf.setTrustStorePassword("storepwd");
 
-        expectedException.expect(java.security.UnrecoverableKeyException.class);
-        expectedException.expectMessage(containsString("Cannot recover key"));
         try (StacklessLogging ignore = new StacklessLogging(AbstractLifeCycle.class))
         {
-            cf.start();
+            java.security.UnrecoverableKeyException x = assertThrows(
+                    java.security.UnrecoverableKeyException.class, ()->cf.start());
+            assertThat(x.getMessage(), containsString("Cannot recover key"));
         }
     }
 
@@ -179,23 +175,23 @@ public class SslContextFactoryTest
         cf.setKeyManagerPassword("keypwd");
         cf.setTrustStorePassword("wrong_storepwd");
 
-        expectedException.expect(IOException.class);
-        expectedException.expectMessage(containsString("Keystore was tampered with, or password was incorrect"));
         try (StacklessLogging ignore = new StacklessLogging(AbstractLifeCycle.class))
         {
-            cf.start();
+            IOException x = assertThrows(IOException.class, ()->cf.start());
+            assertThat(x.getMessage(), containsString("Keystore was tampered with, or password was incorrect"));
         }
     }
 
     @Test
     public void testNoKeyConfig() throws Exception
     {
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage(containsString("no valid keystore"));
         try (StacklessLogging ignore = new StacklessLogging(AbstractLifeCycle.class))
         {
-            cf.setTrustStorePath("/foo");
-            cf.start();
+            IllegalStateException x = assertThrows(IllegalStateException.class, ()-> {
+                cf.setTrustStorePath("/foo");
+                cf.start();
+            });
+            assertThat(x.getMessage(), containsString("no valid keystore"));
         }
     }
 

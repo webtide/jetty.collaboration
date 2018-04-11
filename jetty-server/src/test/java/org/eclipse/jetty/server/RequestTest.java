@@ -21,15 +21,16 @@ package org.eclipse.jetty.server;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -66,7 +67,6 @@ import org.eclipse.jetty.server.LocalConnector.LocalEndPoint;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ErrorHandler;
-import org.eclipse.jetty.toolchain.test.AdvancedRunner;
 import org.eclipse.jetty.toolchain.test.FS;
 import org.eclipse.jetty.toolchain.test.MavenTestingUtils;
 import org.eclipse.jetty.util.BufferUtil;
@@ -75,13 +75,11 @@ import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.log.StacklessLogging;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@RunWith(AdvancedRunner.class)
 public class RequestTest
 {
     private static final Logger LOG = Log.getLogger(RequestTest.class);
@@ -89,7 +87,7 @@ public class RequestTest
     private LocalConnector _connector;
     private RequestHandler _handler;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception
     {
         _server = new Server();
@@ -112,7 +110,7 @@ public class RequestTest
         _server.start();
     }
 
-    @After
+    @AfterEach
     public void destroy() throws Exception
     {
         _server.stop();
@@ -1067,7 +1065,7 @@ public class RequestTest
     
     
     @Test
-    @Ignore("See issue #1175")
+    @Disabled("See issue #1175")
     public void testMultiPartFormDataReadInputThenParams() throws Exception
     {
         final File tmpdir = MavenTestingUtils.getTargetTestingDir("multipart");
@@ -1580,7 +1578,7 @@ public class RequestTest
         
     }
 
-    @Ignore("No longer relevant")
+    @Disabled("No longer relevant")
     @Test
     public void testCookieLeak() throws Exception
     {
@@ -1759,11 +1757,11 @@ public class RequestTest
         }
     }
 
-    @Test(expected = UnsupportedEncodingException.class)
+    @Test
     public void testNotSupportedCharacterEncoding() throws UnsupportedEncodingException
     {
         Request request = new Request(null, null);
-        request.setCharacterEncoding("doesNotExist");
+        assertThrows(UnsupportedEncodingException.class, ()-> request.setCharacterEncoding("doesNotExist"));
     }
 
     @Test

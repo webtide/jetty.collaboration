@@ -18,11 +18,13 @@
 
 package org.eclipse.jetty.servlet;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -59,10 +61,9 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.toolchain.test.MavenTestingUtils;
 import org.eclipse.jetty.util.TypeUtil;
 import org.eclipse.jetty.util.UrlEncoded;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DispatcherTest
 {
@@ -72,7 +73,7 @@ public class DispatcherTest
     private ServletContextHandler _contextHandler;
     private ResourceHandler _resourceHandler;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception
     {
         _server = new Server();
@@ -96,7 +97,7 @@ public class DispatcherTest
         _server.start();
     }
 
-    @After
+    @AfterEach
     public void destroy() throws Exception
     {
         _server.stop();
@@ -269,7 +270,7 @@ public class DispatcherTest
     {
         String responses = _connector.getResponse("GET /resource/content.txt HTTP/1.0\n" + "Host: localhost\n\n");
 
-        assertTrue(responses.contains("content goes here")); // from inside the context.txt file
+        assertThat(responses, containsString("content goes here")); // from inside the context.txt file
     }
 
     @Test
@@ -280,9 +281,9 @@ public class DispatcherTest
         String responses = _connector.getResponse("GET /context/resourceServlet/content.txt?do=include HTTP/1.0\n" + "Host: localhost\n\n");
 
         // from inside the context.txt file
-        Assert.assertNotNull(responses);
+        assertNotNull(responses);
 
-        assertTrue(responses.contains("content goes here"));
+        assertThat(responses, containsString("content goes here"));
     }
 
     @Test
@@ -293,7 +294,7 @@ public class DispatcherTest
         String responses = _connector.getResponse("GET /context/resourceServlet/content.txt?do=forward HTTP/1.0\n" + "Host: localhost\n\n");
 
         // from inside the context.txt file
-        assertTrue(responses.contains("content goes here"));
+        assertThat(responses, containsString("content goes here"));
     }
 
     @Test
@@ -304,7 +305,7 @@ public class DispatcherTest
         String responses = _connector.getResponse("GET /context/resourceServlet/content.txt?do=include&wrapped=true HTTP/1.0\n" + "Host: localhost\n\n");
 
         // from inside the context.txt file
-        assertTrue(responses.contains("content goes here"));
+        assertThat(responses, containsString("content goes here"));
     }
 
     @Test
@@ -315,7 +316,7 @@ public class DispatcherTest
         String responses = _connector.getResponse("GET /context/resourceServlet/content.txt?do=forward&wrapped=true HTTP/1.0\n" + "Host: localhost\n\n");
 
         // from inside the context.txt file
-        assertTrue(responses.contains("content goes here"));
+        assertThat(responses, containsString("content goes here"));
     }
 
     @Test
@@ -332,9 +333,9 @@ public class DispatcherTest
 
         String rechoResponse = _connector.getResponse("GET /context/?echo=echoText HTTP/1.0\n" + "Host: localhost\n\n");
 
-        assertTrue(rogerResponse.contains("Roger That!"));
-        assertTrue(echoResponse.contains("echoText"));
-        assertTrue(rechoResponse.contains("txeTohce"));
+        assertThat(rogerResponse, containsString("Roger That!"));
+        assertThat(echoResponse, containsString("echoText"));
+        assertThat(rechoResponse, containsString("txeTohce"));
     }
 
 

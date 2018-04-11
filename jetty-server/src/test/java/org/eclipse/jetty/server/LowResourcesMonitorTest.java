@@ -19,6 +19,13 @@
 package org.eclipse.jetty.server;
 
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -26,22 +33,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
-import org.eclipse.jetty.toolchain.test.AdvancedRunner;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.TimerScheduler;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@RunWith(AdvancedRunner.class)
 public class LowResourcesMonitorTest
 {
     QueuedThreadPool _threadPool;
@@ -49,7 +49,7 @@ public class LowResourcesMonitorTest
     ServerConnector _connector;
     LowResourceMonitor _lowResourcesMonitor;
     
-    @Before
+    @BeforeEach
     public void before() throws Exception
     {
         _threadPool = new QueuedThreadPool();
@@ -76,7 +76,7 @@ public class LowResourcesMonitorTest
         _server.start();
     }
     
-    @After
+    @AfterEach
     public void after() throws Exception
     {
         _server.stop();
@@ -89,7 +89,7 @@ public class LowResourcesMonitorTest
         Thread.sleep(1200);
         _threadPool.setMaxThreads(_threadPool.getThreads()-_threadPool.getIdleThreads()+10);
         Thread.sleep(1200);
-        Assert.assertFalse(_lowResourcesMonitor.isLowOnResources());
+        assertFalse(_lowResourcesMonitor.isLowOnResources());
         
         final CountDownLatch latch = new CountDownLatch(1);
         
@@ -113,11 +113,11 @@ public class LowResourcesMonitorTest
         }
         
         Thread.sleep(1200);
-        Assert.assertTrue(_lowResourcesMonitor.isLowOnResources());
+        assertTrue(_lowResourcesMonitor.isLowOnResources());
         
         latch.countDown();
         Thread.sleep(1200);
-        Assert.assertFalse(_lowResourcesMonitor.isLowOnResources());      
+        assertFalse(_lowResourcesMonitor.isLowOnResources());
     }
     
 
@@ -128,7 +128,7 @@ public class LowResourcesMonitorTest
         Thread.sleep(1200);
         _threadPool.setMaxThreads(_threadPool.getThreads()-_threadPool.getIdleThreads()+10);
         Thread.sleep(1200);
-        Assert.assertFalse(_lowResourcesMonitor.isLowOnResources());
+        assertFalse(_lowResourcesMonitor.isLowOnResources());
         
         for (AbstractConnector c : _server.getBeans(AbstractConnector.class))
             assertThat(c.isAccepting(),Matchers.is(true));
@@ -154,25 +154,25 @@ public class LowResourcesMonitorTest
         }
         
         Thread.sleep(1200);
-        Assert.assertTrue(_lowResourcesMonitor.isLowOnResources());
+        assertTrue(_lowResourcesMonitor.isLowOnResources());
         for (AbstractConnector c : _server.getBeans(AbstractConnector.class))
             assertThat(c.isAccepting(),Matchers.is(false));
         
         latch.countDown();
         Thread.sleep(1200);
-        Assert.assertFalse(_lowResourcesMonitor.isLowOnResources());   
+        assertFalse(_lowResourcesMonitor.isLowOnResources());
         for (AbstractConnector c : _server.getBeans(AbstractConnector.class))
             assertThat(c.isAccepting(),Matchers.is(true));   
     }
     
 
-    @Ignore ("not reliable")
+    @Disabled("not reliable")
     @Test
     public void testLowOnMemory() throws Exception
     {
         _lowResourcesMonitor.setMaxMemory(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()+(100*1024*1024));
         Thread.sleep(1200);
-        Assert.assertFalse(_lowResourcesMonitor.isLowOnResources());
+        assertFalse(_lowResourcesMonitor.isLowOnResources());
 
         byte[] data = new byte[100*1024*1024];
         Arrays.fill(data,(byte)1);
@@ -180,13 +180,13 @@ public class LowResourcesMonitorTest
         assertThat(hash,not(equalTo(0)));
 
         Thread.sleep(1200);
-        Assert.assertTrue(_lowResourcesMonitor.isLowOnResources());
+        assertTrue(_lowResourcesMonitor.isLowOnResources());
         data=null;
         System.gc();
         System.gc();
 
         Thread.sleep(1200);
-        Assert.assertFalse(_lowResourcesMonitor.isLowOnResources());   
+        assertFalse(_lowResourcesMonitor.isLowOnResources());
     }
     
 
@@ -194,26 +194,26 @@ public class LowResourcesMonitorTest
     public void testMaxConnectionsAndMaxIdleTime() throws Exception
     {
         _lowResourcesMonitor.setMaxMemory(0);
-        Assert.assertFalse(_lowResourcesMonitor.isLowOnResources());
+        assertFalse(_lowResourcesMonitor.isLowOnResources());
 
         Socket[] socket = new Socket[_lowResourcesMonitor.getMaxConnections()+1];
         for (int i=0;i<socket.length;i++)
             socket[i]=new Socket("localhost",_connector.getLocalPort());
         
         Thread.sleep(1200);
-        Assert.assertTrue(_lowResourcesMonitor.isLowOnResources());
+        assertTrue(_lowResourcesMonitor.isLowOnResources());
 
         try(Socket newSocket = new Socket("localhost",_connector.getLocalPort()))
         {
             // wait for low idle time to close sockets, but not new Socket
             Thread.sleep(1200);
-            Assert.assertFalse(_lowResourcesMonitor.isLowOnResources());   
+            assertFalse(_lowResourcesMonitor.isLowOnResources());
 
             for (int i=0;i<socket.length;i++)
-                Assert.assertEquals(-1,socket[i].getInputStream().read());
+                assertEquals(-1,socket[i].getInputStream().read());
 
             newSocket.getOutputStream().write("GET / HTTP/1.0\r\n\r\n".getBytes(StandardCharsets.UTF_8));
-            Assert.assertEquals('H',newSocket.getInputStream().read());
+            assertEquals('H',newSocket.getInputStream().read());
         }
     }
     
