@@ -16,11 +16,11 @@
   <properties>
     <jetty.url>http://www.eclipse.org/jetty</jetty.url>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <build-support-version>1.4</build-support-version>
+    <build-support.version>1.4</build-support.version>
     <slf4j.version>1.7.25</slf4j.version>
     <log4j2.version>2.9.1</log4j2.version>
     <logback.version>1.2.3</logback.version>
-    <jetty-test-policy-version>1.2</jetty-test-policy-version>
+    <jetty-test-policy.version>1.2</jetty-test-policy.version>
     <alpn.api.version>1.1.3.v20160715</alpn.api.version>
     <jsp.version>8.5.24.2</jsp.version>
     <!-- default values are unsupported, but required to be defined for reactor sanity reasons -->
@@ -29,11 +29,13 @@
     <asm.version>6.2</asm.version>
     <jmh.version>1.21</jmh.version>
     <jmhjar.name>benchmarks</jmhjar.name>
-    <surefireVersion>2.22.0</surefireVersion>
+
     <tycho-version>1.2.0</tycho-version>
     <cbi-plugins.version>1.1.5</cbi-plugins.version>
-    <mavenPluginToolsVersion>3.5.2</mavenPluginToolsVersion>
-    <mavenVersion>3.5.0</mavenVersion>
+    <surefire.version>2.22.0</surefire.version>
+
+    <maven-plugin-tools.version>3.5.2</maven-plugin-tools.version>
+    <maven.version>3.5.0</maven.version>
     <unix.socket.tmp></unix.socket.tmp>
 
     <!-- testing -->
@@ -162,7 +164,7 @@
           <dependency>
             <groupId>org.eclipse.jetty.toolchain</groupId>
             <artifactId>jetty-build-support</artifactId>
-            <version>${build-support-version}</version>
+            <version>${build-support.version}</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -244,7 +246,7 @@
           <dependency>
             <groupId>org.eclipse.jetty.toolchain</groupId>
             <artifactId>jetty-build-support</artifactId>
-            <version>${build-support-version}</version>
+            <version>${build-support.version}</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -453,7 +455,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>${surefireVersion}</version>
+          <version>${surefire.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -617,9 +619,10 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>${surefireVersion}</version>
+          <version>${surefire.version}</version>
           <configuration>
             <forkedProcessTimeoutInSeconds>3600</forkedProcessTimeoutInSeconds>
+            <!-- argLine doesn't work with current surefire and jacoco -->
             <argLine>@{argLine} -Dfile.encoding=UTF-8 -Duser.language=en -Duser.region=US -showversion -Xmx1g -Xms1g -XX:+PrintGCDetails</argLine>
             <failIfNoTests>false</failIfNoTests>
             <forkCount>1</forkCount>
@@ -992,27 +995,27 @@
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-plugin-api</artifactId>
-        <version>${mavenVersion}</version>
+        <version>${maven.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-artifact</artifactId>
-        <version>${mavenVersion}</version>
+        <version>${maven.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-core</artifactId>
-        <version>${mavenVersion}</version>
+        <version>${maven.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven.plugin-tools</groupId>
         <artifactId>maven-plugin-tools-api</artifactId>
-        <version>${mavenPluginToolsVersion}</version>
+        <version>${maven-plugin-tools.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven.plugin-tools</groupId>
         <artifactId>maven-plugin-annotations</artifactId>
-        <version>${mavenPluginToolsVersion}</version>
+        <version>${maven-plugin-tools.version}</version>
         <scope>provided</scope>
       </dependency>
       <!-- Old Deps -->
@@ -1357,7 +1360,7 @@
           <plugin>
             <groupId>org.eclipse.cbi.maven.plugins</groupId>
             <artifactId>eclipse-jarsigner-plugin</artifactId>
-	    <version>${cbi-plugins.version}</version>
+	          <version>${cbi-plugins.version}</version>
             <executions>
               <execution>
                 <id>sign</id>
