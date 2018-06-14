@@ -19,11 +19,11 @@
 package org.eclipse.jetty.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -35,6 +35,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.jetty.util.SharedBlockingCallback.Blocker;
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
 import org.junit.jupiter.api.Test;
 
 public class SharedBlockingCallbackTest
@@ -236,7 +238,7 @@ public class SharedBlockingCallbackTest
             assertThat(cause,instanceOf(TimeoutException.class));
         }
         
-        Assert.assertEquals(0,notComplete.get());
+        assertEquals(0,notComplete.get());
 
         try (Blocker blocker=sbcb.acquire())
         {

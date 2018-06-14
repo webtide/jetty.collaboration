@@ -249,7 +249,7 @@ public class FileSystemResourceTest
     @MethodSource("fsResourceProvider")
     public void testNewResource_WithSpace(Class resourceClass) throws Exception
     {
-        Path dir = testdir.getPath().normalize().toRealPath();
+        Path dir = workDir.getPath().normalize().toRealPath();
 
         Path baseDir = dir.resolve("base with spaces");
         FS.ensureDirExists(baseDir.toFile());
@@ -273,7 +273,7 @@ public class FileSystemResourceTest
 
     @ParameterizedTest
     @MethodSource("fsResourceProvider")
-    public void testAddPathClass resourceClass() throws Exception
+    public void testAddPathClass(Class resourceClass) throws Exception
     {
         Path dir = workDir.getEmptyPathDir();
         
