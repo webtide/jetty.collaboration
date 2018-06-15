@@ -29,11 +29,9 @@
     <asm.version>6.2</asm.version>
     <jmh.version>1.21</jmh.version>
     <jmhjar.name>benchmarks</jmhjar.name>
-
     <tycho-version>1.2.0</tycho-version>
     <cbi-plugins.version>1.1.5</cbi-plugins.version>
     <surefire.version>2.22.0</surefire.version>
-
     <maven-plugin-tools.version>3.5.2</maven-plugin-tools.version>
     <maven.version>3.5.0</maven.version>
     <unix.socket.tmp></unix.socket.tmp>

@@ -28,7 +28,7 @@ import org.eclipse.jetty.util.log.StacklessLogging;
 import org.eclipse.jetty.util.thread.strategy.EatWhatYouKill;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EatWhatYouKillTest
 {
