@@ -20,6 +20,7 @@ package org.eclipse.jetty.websocket.jsr356.server;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -52,8 +53,6 @@ import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainer
 import org.eclipse.jetty.websocket.jsr356.server.samples.echo.BasicEchoEndpoint;
 import org.eclipse.jetty.websocket.server.NativeWebSocketConfiguration;
 import org.junit.jupiter.api.AfterEach;
-
-import org.junit.Assume;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -93,7 +92,7 @@ public class ExtensionStackProcessingTest
         NativeWebSocketConfiguration configuration = (NativeWebSocketConfiguration) servletContextHandler
                 .getServletContext().getAttribute(NativeWebSocketConfiguration.class.getName());
         ExtensionFactory serverExtensionFactory = configuration.getFactory().getExtensionFactory();
-        Assume.assumeTrue("Server has permessage-deflate extension registered",serverExtensionFactory.isAvailable("permessage-deflate"));
+        assumeTrue(serverExtensionFactory.isAvailable("permessage-deflate"), "Server has permessage-deflate extension registered");
     }
 
     @Test

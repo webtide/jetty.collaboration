@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import org.eclipse.jetty.toolchain.test.MavenTestingUtils;
 import org.eclipse.jetty.util.MultiReleaseJarFile.VersionedJarEntry;
 import org.hamcrest.Matchers;
-import org.junit.Assume;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnJre;
 import org.junit.jupiter.api.condition.JRE;

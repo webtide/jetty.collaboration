@@ -18,8 +18,8 @@
 
 package org.eclipse.jetty.spring;
 
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.net.URL;
 import java.util.HashMap;

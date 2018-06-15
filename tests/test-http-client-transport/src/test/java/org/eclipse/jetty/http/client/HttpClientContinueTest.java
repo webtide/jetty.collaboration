@@ -19,6 +19,7 @@
 package org.eclipse.jetty.http.client;
 
 import static org.eclipse.jetty.http.client.Transport.FCGI;
+import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -59,11 +60,8 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.util.IO;
-import org.hamcrest.Matchers;
-import org.junit.Assume;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -765,11 +763,12 @@ public class HttpClientContinueTest extends AbstractTest<TransportScenario>
         assertArrayEquals(bytes, response.getContent());
     }
 
-    @Test
+    @ParameterizedTest
     @ArgumentsSource(TransportProvider.class)
     public void test_NoExpect_100Continue_ThenRedirect_Then100Continue_ThenResponse(Transport transport) throws Exception
     {
-        Assume.assumeThat( transport, Matchers.is( Transport.HTTP));
+        assumeTrue(transport == Transport.HTTP); // TODO: modify ArgumentsSource
+        init(transport);
 
         scenario.startClient();
         scenario.client.setMaxConnectionsPerDestination(1);

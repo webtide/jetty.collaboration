@@ -21,6 +21,7 @@ package org.eclipse.jetty.websocket.server;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -36,7 +37,6 @@ import org.eclipse.jetty.websocket.common.test.BlockheadClientRequest;
 import org.eclipse.jetty.websocket.common.test.BlockheadConnection;
 import org.eclipse.jetty.websocket.common.test.Timeouts;
 import org.eclipse.jetty.websocket.server.helper.EchoServlet;
-import org.junit.Assume;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -90,11 +90,11 @@ public class FragmentExtensionTest
     @Test
     public void testFragmentExtension() throws Exception
     {
-        Assume.assumeTrue("Server has fragment registered",
-                server.getWebSocketServletFactory().getExtensionFactory().isAvailable("fragment"));
+        assumeTrue(server.getWebSocketServletFactory().getExtensionFactory().isAvailable("fragment"),
+                "Server has fragment registered");
 
-        Assume.assumeTrue("Client has fragment registered",
-                client.getExtensionFactory().isAvailable("fragment"));
+        assumeTrue(client.getExtensionFactory().isAvailable("fragment"),
+                "Client has fragment registered");
 
         int fragSize = 4;
 

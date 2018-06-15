@@ -18,6 +18,7 @@
 
 package org.eclipse.jetty.util.resource;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
@@ -25,8 +26,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assume.assumeThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.junit.jupiter.api.condition.OS.LINUX;
@@ -299,7 +298,7 @@ public class FileSystemResourceTest
         Files.createDirectories(subdir);
 
         String readableRootDir = findRootDir(dir.getFileSystem());
-        assumeThat("Readable Root Dir found",readableRootDir,notNullValue());
+        assumeTrue(readableRootDir != null, "Readable Root Dir found");
 
         try (Resource base = newResource(resourceClass, dir.toFile()))
         {
@@ -860,7 +859,7 @@ public class FileSystemResourceTest
                 Resource alias = base.addPath("testfile::$DATA");
                 if (alias.exists())
                 {
-                    assumeThat(alias.getURI().getScheme(), is("file"));
+                    assumeTrue(alias.getURI().getScheme() == "file");
                     
                     // If it exists, it must be an alias
                     assertThat("resource.alias",alias,isAliasFor(resource));

@@ -30,8 +30,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.util.IO;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -47,7 +45,7 @@ public class OverlayedAppProviderTest
     File _nodes;
     File _instances;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception
     {
         _tmp=File.createTempFile("OAPTest",null);
@@ -66,7 +64,7 @@ public class OverlayedAppProviderTest
         _instances.mkdir();
     }
 
-    @After
+    @AfterEach
     public void after() throws Exception
     {
         if (_tmp.exists())

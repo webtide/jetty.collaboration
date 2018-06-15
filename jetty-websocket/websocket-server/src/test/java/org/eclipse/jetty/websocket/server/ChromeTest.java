@@ -21,6 +21,7 @@ package org.eclipse.jetty.websocket.server;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -36,7 +37,6 @@ import org.eclipse.jetty.websocket.common.test.BlockheadClientRequest;
 import org.eclipse.jetty.websocket.common.test.BlockheadConnection;
 import org.eclipse.jetty.websocket.common.test.Timeouts;
 import org.eclipse.jetty.websocket.server.examples.MyEchoServlet;
-import org.junit.Assume;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -76,11 +76,11 @@ public class ChromeTest
     @Test
     public void testUpgradeWithWebkitDeflateExtension() throws Exception
     {
-        Assume.assumeTrue("Server has x-webkit-deflate-frame registered",
-                server.getWebSocketServletFactory().getExtensionFactory().isAvailable("x-webkit-deflate-frame"));
+        assumeTrue(server.getWebSocketServletFactory().getExtensionFactory().isAvailable("x-webkit-deflate-frame"),
+                "Server has x-webkit-deflate-frame registered");
 
-        Assume.assumeTrue("Client has x-webkit-deflate-frame registered",
-                client.getExtensionFactory().isAvailable("x-webkit-deflate-frame"));
+        assumeTrue(client.getExtensionFactory().isAvailable("x-webkit-deflate-frame"),
+                "Client has x-webkit-deflate-frame registered");
 
         BlockheadClientRequest request = client.newWsRequest(server.getServerUri());
         request.header(HttpHeader.SEC_WEBSOCKET_EXTENSIONS, "x-webkit-deflate-frame");

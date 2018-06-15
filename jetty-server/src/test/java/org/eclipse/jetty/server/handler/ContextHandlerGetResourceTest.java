@@ -18,14 +18,15 @@
 
 package org.eclipse.jetty.server.handler;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.junit.jupiter.api.condition.OS.LINUX;
 import static org.junit.jupiter.api.condition.OS.MAC;
 
@@ -39,10 +40,9 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.toolchain.test.FS;
 import org.eclipse.jetty.toolchain.test.MavenTestingUtils;
 import org.eclipse.jetty.util.resource.Resource;
-import org.junit.Assume;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
@@ -338,7 +338,7 @@ public class ContextHandlerGetResourceTest
     @Test
     public void testAliasedFile() throws Exception
     {
-        Assume.assumeTrue("OS Supports 8.3 Aliased / Alternate References",OS_ALIAS_SUPPORTED);
+        assumeTrue(OS_ALIAS_SUPPORTED, "OS Supports 8.3 Aliased / Alternate References");
         final String path="/subdir/TEXTFI~1.TXT";
         
         Resource resource=context.getResource(path);
@@ -351,7 +351,7 @@ public class ContextHandlerGetResourceTest
     @Test
     public void testAliasedFileAllowed() throws Exception
     {
-        Assume.assumeTrue("OS Supports 8.3 Aliased / Alternate References",OS_ALIAS_SUPPORTED);
+        assumeTrue(OS_ALIAS_SUPPORTED, "OS Supports 8.3 Aliased / Alternate References");
         try
         {
             allowAliases.set(true);

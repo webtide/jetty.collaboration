@@ -36,13 +36,10 @@ import org.junit.runners.Suite;
   ClusteredSessionScavengingTest.class,
   ClusteredOrphanedSessionTest.class
 })
-
-
 public class GCloudTestSuite
 {
     public static GCloudSessionTestSupport __testSupport;
-    
-    
+
     @BeforeAll
     public static void setUp () throws Exception
     {

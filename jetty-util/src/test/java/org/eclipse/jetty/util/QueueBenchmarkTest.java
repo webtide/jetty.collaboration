@@ -18,6 +18,8 @@
 
 package org.eclipse.jetty.util;
 
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -30,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
-import org.junit.Assume;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
@@ -45,7 +46,7 @@ public class QueueBenchmarkTest
     public void testQueues() throws Exception
     {
         int cores = ProcessorUtils.availableProcessors();
-        Assume.assumeTrue(cores > 1);
+        assumeTrue(cores > 1);
 
         final int readers = cores / 2;
         final int writers = readers;
@@ -63,7 +64,7 @@ public class QueueBenchmarkTest
     public void testBlockingQueues() throws Exception
     {
         int cores = ProcessorUtils.availableProcessors();
-        Assume.assumeTrue(cores > 1);
+        assumeTrue(cores > 1);
 
         final int readers = cores / 2;
         final int writers = readers;
