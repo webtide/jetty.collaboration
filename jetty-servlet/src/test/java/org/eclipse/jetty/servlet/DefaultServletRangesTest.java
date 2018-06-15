@@ -19,6 +19,7 @@
 package org.eclipse.jetty.servlet;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -33,7 +34,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.toolchain.test.FS;
 import org.eclipse.jetty.toolchain.test.jupiter.WorkDir;
 import org.eclipse.jetty.toolchain.test.jupiter.WorkDirExtension;
-import org.eclipse.jetty.util.IO;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -186,8 +186,8 @@ public class DefaultServletRangesTest
 
         assertResponseContains("Content-Range: bytes 10-60/80", response);
         assertResponseContains("Content-Range: bytes 0-2/80", response);
-        Assert.assertEquals( "Content range 0-60/80 in response not only 1:" + response , //
-                             2, response.split( "Content-Range: bytes 10-60/80" ).length);
+        assertEquals( 2, response.split( "Content-Range: bytes 10-60/80" ).length, //
+                      "Content range 0-60/80 in response not only 1:" + response );
         assertTrue(body.endsWith(boundary + "--\r\n"));
     }
 

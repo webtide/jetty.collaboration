@@ -368,34 +368,37 @@ public class WriteFlusherTest
         });
     }
 
-    @Test(expected = ExecutionException.class)
+    @Test
     public void testConcurrentWriteAndOnFail() throws Exception
     {
-        ByteArrayEndPoint endPoint = new ByteArrayEndPoint(new byte[0], 16);
+        assertThrows( ExecutionException.class , () -> {
+            ByteArrayEndPoint endPoint = new ByteArrayEndPoint( new byte[0], 16 );
 
-        WriteFlusher flusher = new WriteFlusher(endPoint)
-        {
-            @Override
-            protected ByteBuffer[] flush(ByteBuffer[] buffers) throws IOException
+            WriteFlusher flusher = new WriteFlusher( endPoint )
             {
-                ByteBuffer[] result = super.flush(buffers);
-                boolean notified = onFail(new Throwable());
-                assertTrue(notified);
-                return result;
-            }
+                @Override
+                protected ByteBuffer[] flush( ByteBuffer[] buffers )
+                    throws IOException
+                {
+                    ByteBuffer[] result = super.flush( buffers );
+                    boolean notified = onFail( new Throwable() );
+                    assertTrue( notified );
+                    return result;
+                }
 
-            @Override
-            protected void onIncompleteFlush()
-            {
-            }
-        };
+                @Override
+                protected void onIncompleteFlush()
+                {
+                }
+            };
 
-        FutureCallback callback = new FutureCallback();
-        flusher.write(callback, BufferUtil.toBuffer("foo"));
+            FutureCallback callback = new FutureCallback();
+            flusher.write( callback, BufferUtil.toBuffer( "foo" ) );
 
-        assertTrue(flusher.isFailed());
+            assertTrue( flusher.isFailed() );
 
-        callback.get(1, TimeUnit.SECONDS);
+            callback.get( 1, TimeUnit.SECONDS );
+        });
     }
 
     @Test

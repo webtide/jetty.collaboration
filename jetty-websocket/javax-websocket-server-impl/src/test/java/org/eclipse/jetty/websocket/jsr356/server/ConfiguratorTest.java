@@ -720,7 +720,7 @@ public class ConfiguratorTest
             clientConn.write(new TextFrame().setPayload("tellme"));
             LinkedBlockingQueue<WebSocketFrame> frames = clientConn.getFrameQueue();
             WebSocketFrame frame = frames.poll(Timeouts.POLL_EVENT, Timeouts.POLL_EVENT_UNIT);
-            Assert.assertThat("Frame Response", frame.getPayloadAsUTF8(), is("UserProperties[self.configurator] = " + ConfigNormalConfigurator.class.getName()));
+            assertThat("Frame Response", frame.getPayloadAsUTF8(), is("UserProperties[self.configurator] = " + ConfigNormalConfigurator.class.getName()));
         }
     }
 
@@ -740,7 +740,7 @@ public class ConfiguratorTest
             clientConn.write(new TextFrame().setPayload("tellme"));
             LinkedBlockingQueue<WebSocketFrame> frames = clientConn.getFrameQueue();
             WebSocketFrame frame = frames.poll(Timeouts.POLL_EVENT, Timeouts.POLL_EVENT_UNIT);
-            Assert.assertThat("Frame Response", frame.getPayloadAsUTF8(), is("UserProperties[self.configurator] = " + ConfigOverrideConfigurator.class.getName()));
+            assertThat("Frame Response", frame.getPayloadAsUTF8(), is("UserProperties[self.configurator] = " + ConfigOverrideConfigurator.class.getName()));
         }
     }
 }

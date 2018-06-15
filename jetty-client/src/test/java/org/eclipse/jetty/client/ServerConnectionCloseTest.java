@@ -143,7 +143,7 @@ public class ServerConnectionCloseTest
                     socket.shutdownOutput();
 
                 ContentResponse response = listener.get(5, TimeUnit.SECONDS);
-                Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+                assertEquals(HttpStatus.OK_200, response.getStatus());
 
                 // Give some time to process the connection.
                 Thread.sleep(1000);
@@ -151,9 +151,9 @@ public class ServerConnectionCloseTest
                 // Connection should have been removed from pool.
                 HttpDestinationOverHTTP destination = (HttpDestinationOverHTTP)client.getDestination("http", "localhost", port);
                 DuplexConnectionPool connectionPool = (DuplexConnectionPool)destination.getConnectionPool();
-                Assert.assertEquals(0, connectionPool.getConnectionCount());
-                Assert.assertEquals(0, connectionPool.getIdleConnectionCount());
-                Assert.assertEquals(0, connectionPool.getActiveConnectionCount());
+                assertEquals(0, connectionPool.getConnectionCount());
+                assertEquals(0, connectionPool.getIdleConnectionCount());
+                assertEquals(0, connectionPool.getActiveConnectionCount());
             }
         }
     }

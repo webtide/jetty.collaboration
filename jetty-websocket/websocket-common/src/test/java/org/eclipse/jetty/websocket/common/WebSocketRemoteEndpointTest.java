@@ -93,9 +93,9 @@ public class WebSocketRemoteEndpointTest
      * @see <a href="https://github.com/eclipse/jetty.project/issues/2491">eclipse/jetty.project#2491</a>
      */
     @Test
-    public void testLargeSmallText() throws ExecutionException, InterruptedException
+    public void testLargeSmallText(TestInfo testInfo) throws ExecutionException, InterruptedException
     {
-        LocalWebSocketConnection conn = new LocalWebSocketConnection(testname, bufferPool);
+        LocalWebSocketConnection conn = new LocalWebSocketConnection(testInfo.getDisplayName(), bufferPool);
         OutgoingFrames orderingAssert = new SaneFrameOrderingAssertion();
         WebSocketRemoteEndpoint remote = new WebSocketRemoteEndpoint(conn, orderingAssert);
         conn.connect();

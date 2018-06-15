@@ -21,6 +21,7 @@ package org.eclipse.jetty.servlet;
 import static org.eclipse.jetty.http.HttpFieldsMatchers.containsHeader;
 import static org.eclipse.jetty.http.HttpFieldsMatchers.containsHeaderValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
@@ -1713,7 +1714,7 @@ public class DefaultServletTest
     {
         FS.ensureDirExists(docRoot);
         ServletHolder defholder = context.addServlet(DefaultServlet.class, "/");
-        defholder.setInitParameter("resourceBase", docRoot.getAbsolutePath());
+        defholder.setInitParameter("resourceBase", docRoot.toFile().getAbsolutePath());
 
         String rawResponse = connector.getResponse("GET /context/%0a HTTP/1.1\r\nHost: local\r\nConnection: close\r\n\r\n");
         HttpTester.Response response = HttpTester.parseResponse(rawResponse);

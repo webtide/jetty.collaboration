@@ -161,7 +161,7 @@ public class SocketChannelEndPointTest
                 long start = TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
                 assertThrows(SocketTimeoutException.class, ()-> client.getInputStream().read());
                 long duration = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) - start;
-                Assert.assertThat("timeout duration", duration, greaterThanOrEqualTo(400L));
+                assertThat("timeout duration", duration, greaterThanOrEqualTo(400L));
 
                 // write then shutdown
                 client.getOutputStream().write("Goodbye Cruel TLS".getBytes(StandardCharsets.UTF_8));
@@ -170,7 +170,7 @@ public class SocketChannelEndPointTest
                 for (char c : "Goodbye Cruel TLS".toCharArray())
                 {
                     int b = client.getInputStream().read();
-                    Assert.assertThat("expect valid char integer", b, greaterThan(0));
+                    assertThat("expect valid char integer", b, greaterThan(0));
                     assertEquals(c, (char) b, "expect characters to be same");
                 }
                 client.close();
@@ -257,7 +257,7 @@ public class SocketChannelEndPointTest
             clientOutputStream.write("12345678".getBytes(StandardCharsets.UTF_8));
             clientOutputStream.flush();
 
-            Assert.assertTrue(_lastEndPointLatch.await(1, TimeUnit.SECONDS));
+            assertTrue(_lastEndPointLatch.await(1, TimeUnit.SECONDS));
             _lastEndPoint.setIdleTimeout(10 * specifiedTimeout);
             Thread.sleep((11 * specifiedTimeout) / 10);
 
@@ -304,7 +304,7 @@ public class SocketChannelEndPointTest
                 out.write(count);
                 out.flush();
 
-                Assert.assertTrue(_lastEndPointLatch.await(1, TimeUnit.SECONDS));
+                assertTrue(_lastEndPointLatch.await(1, TimeUnit.SECONDS));
                 _lastEndPoint.setIdleTimeout(5000);
 
                 new Thread(() ->
@@ -320,7 +320,7 @@ public class SocketChannelEndPointTest
                             for (byte b0 : bytes)
                             {
                                 int b = in.read();
-                                Assert.assertThat(b, greaterThan(0));
+                                assertThat(b, greaterThan(0));
                                 assertEquals(0xff & b0, b);
                             }
 

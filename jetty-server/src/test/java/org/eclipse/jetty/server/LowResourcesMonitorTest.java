@@ -22,9 +22,7 @@ package org.eclipse.jetty.server;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.InputStream;
 import java.net.Socket;
@@ -222,11 +220,11 @@ public class LowResourcesMonitorTest
     {
         int monitorPeriod = _lowResourcesMonitor.getPeriod();
         int lowResourcesIdleTimeout = _lowResourcesMonitor.getLowResourcesIdleTimeout();
-        Assert.assertThat(lowResourcesIdleTimeout, Matchers.lessThan(monitorPeriod));
+        assertThat(lowResourcesIdleTimeout, Matchers.lessThan(monitorPeriod));
 
         int maxLowResourcesTime = 5 * monitorPeriod;
         _lowResourcesMonitor.setMaxLowResourcesTime(maxLowResourcesTime);
-        Assert.assertFalse(_lowResourcesMonitor.isLowOnResources());
+        assertFalse(_lowResourcesMonitor.isLowOnResources());
 
         try(Socket socket0 = new Socket("localhost",_connector.getLocalPort()))
         {
@@ -236,10 +234,10 @@ public class LowResourcesMonitorTest
             // Wait a couple of monitor periods so that
             // lowResourceMonitor detects it is in low mode.
             Thread.sleep(2 * monitorPeriod);
-            Assert.assertTrue(_lowResourcesMonitor.isLowOnResources());
+            assertTrue(_lowResourcesMonitor.isLowOnResources());
 
             // We already waited enough for lowResourceMonitor to close socket0.
-            Assert.assertEquals(-1, socket0.getInputStream().read());
+            assertEquals(-1, socket0.getInputStream().read());
 
             // New connections are not affected by the
             // low mode until maxLowResourcesTime elapses.
@@ -249,11 +247,11 @@ public class LowResourcesMonitorTest
                 socket1.setSoTimeout(1);
                 InputStream input1 = socket1.getInputStream();
 
-                Assert.assertTrue(_lowResourcesMonitor.isLowOnResources());
+                assertTrue(_lowResourcesMonitor.isLowOnResources());
                 try
                 {
                     input1.read();
-                    Assert.fail();
+                    fail();
                 }
                 catch (SocketTimeoutException expected)
                 {
@@ -263,11 +261,11 @@ public class LowResourcesMonitorTest
                 Thread.sleep(2 * lowResourcesIdleTimeout);
 
                 // Verify the new socket is still open.
-                Assert.assertTrue(_lowResourcesMonitor.isLowOnResources());
+                assertTrue(_lowResourcesMonitor.isLowOnResources());
                 try
                 {
                     input1.read();
-                    Assert.fail();
+                    fail();
                 }
                 catch (SocketTimeoutException expected)
                 {
@@ -276,9 +274,9 @@ public class LowResourcesMonitorTest
                 // Let the maxLowResourcesTime elapse.
                 Thread.sleep(maxLowResourcesTime);
 
-                Assert.assertTrue(_lowResourcesMonitor.isLowOnResources());
+                assertTrue(_lowResourcesMonitor.isLowOnResources());
                 // Now also the new socket should be closed.
-                Assert.assertEquals(-1, input1.read());
+                assertEquals(-1, input1.read());
             }
         }
     }

@@ -18,11 +18,15 @@
 
 package org.eclipse.jetty.http2.client;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -284,6 +288,7 @@ public class TrailersTest extends AbstractTest
         });
 
         assertTrue(latch.await(5, TimeUnit.SECONDS));
+
         assertTrue( frames.size()==3, frames.toString());
 
         HeadersFrame headers = (HeadersFrame)frames.get(0);
@@ -353,5 +358,6 @@ public class TrailersTest extends AbstractTest
 
         assertTrue(serverLatch.await(5, TimeUnit.SECONDS));
         assertTrue(clientLatch.await(5, TimeUnit.SECONDS));
+
     }
 }

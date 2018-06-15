@@ -191,13 +191,13 @@ public class SocketChannelEndPointInterestsTest
                 OutputStream clientOutput = client.getOutputStream();
                 clientOutput.write(1);
                 clientOutput.flush();
-                Assert.assertTrue(latch1.await(5, TimeUnit.SECONDS));
+                assertTrue(latch1.await(5, TimeUnit.SECONDS));
 
                 // We do not read to keep the socket write blocked
 
                 clientOutput.write(2);
                 clientOutput.flush();
-                Assert.assertTrue(latch2.await(5, TimeUnit.SECONDS));
+                assertTrue(latch2.await(5, TimeUnit.SECONDS));
 
                 // Sleep before reading to allow waking up the server only for read
                 Thread.sleep(1000);
@@ -207,7 +207,7 @@ public class SocketChannelEndPointInterestsTest
                 while (size.getAndDecrement() > 0)
                     clientInput.read();
 
-                Assert.assertNull(failure.get());
+                assertNull(failure.get());
             }
         }
     }

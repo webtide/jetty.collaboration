@@ -47,6 +47,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
@@ -278,7 +279,7 @@ public class HttpTrailersTest extends AbstractTest<TransportScenario>
                 .timeout(15, TimeUnit.SECONDS)
                 .send(listener);
         org.eclipse.jetty.client.api.Response response = listener.get(5, TimeUnit.SECONDS);
-        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        assertEquals(HttpStatus.OK_200, response.getStatus());
 
         InputStream input = listener.getInputStream();
         ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -291,14 +292,14 @@ public class HttpTrailersTest extends AbstractTest<TransportScenario>
             output.write(read);
         }
 
-        Assert.assertArrayEquals(content, output.toByteArray());
+        assertArrayEquals(content, output.toByteArray());
 
         // Wait for the request/response cycle to complete.
         listener.await(5, TimeUnit.SECONDS);
 
         HttpResponse httpResponse = (HttpResponse)response;
         HttpFields trailers = httpResponse.getTrailers();
-        Assert.assertNotNull(trailers);
-        Assert.assertEquals(trailerValue, trailers.get(trailerName));
+        assertNotNull(trailers);
+        assertEquals(trailerValue, trailers.get(trailerName));
     }
 }

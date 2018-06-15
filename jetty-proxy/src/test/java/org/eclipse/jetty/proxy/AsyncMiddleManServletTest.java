@@ -1519,8 +1519,8 @@ public class AsyncMiddleManServletTest
                 .path(target)
                 .timeout(5, TimeUnit.SECONDS)
                 .send();
-        Assert.assertEquals(200, response.getStatus());
-        Assert.assertTrue(response.getHeaders().containsKey(PROXIED_HEADER));
+        assertEquals(200, response.getStatus());
+        assertTrue(response.getHeaders().containsKey(PROXIED_HEADER));
     }
 
     private Path prepareTargetTestsDir() throws IOException

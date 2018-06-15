@@ -22,7 +22,9 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.condition.OS.MAC;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -193,19 +195,12 @@ public class PropertyUserStoreTest
     @Test
     public void testPropertyUserStoreFails() throws Exception
     {
-        PropertyUserStore store = new PropertyUserStore();
-        store.setConfig("file:/this/file/does/not/exist.txt");
-
-        // TODO: convert to assertThrows
-        try
-        {
+        assertThrows(IllegalStateException.class,() -> {
+            PropertyUserStore store = new PropertyUserStore();
+            store.setConfig("file:/this/file/does/not/exist.txt");
             store.start();
-            fail("file should not exist");
-        }
-        catch (IllegalStateException e)
-        {
-            //expected
-        }
+        });
+
     }
 
     @Test

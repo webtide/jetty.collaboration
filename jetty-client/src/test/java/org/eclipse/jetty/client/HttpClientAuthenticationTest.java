@@ -18,6 +18,9 @@
 
 package org.eclipse.jetty.client;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -686,7 +689,9 @@ public class HttpClientAuthenticationTest extends AbstractHttpClientServerTest
         assertTrue(headerInfos.get(0).getType().equalsIgnoreCase("Newauth"));
         assertTrue(headerInfos.get(0).getParameter("realm").equals("apps"));
         assertTrue(headerInfos.get(0).getParameter("type").equals("1"));
+
         assertEquals(headerInfos.get(0).getParameter("title"),"Login to \"apps\"");
+
         assertTrue(headerInfos.get(1).getType().equalsIgnoreCase("Basic"));
         assertTrue(headerInfos.get(1).getParameter("realm").equals("simple"));
     }
@@ -720,6 +725,13 @@ public class HttpClientAuthenticationTest extends AbstractHttpClientServerTest
         assertTrue(headerInfos.get(0).getType().equalsIgnoreCase("Scheme"));
         assertTrue(headerInfos.get(0).getParameter("nAmE").equals("value"));
         assertTrue(headerInfos.get(1).getType().equalsIgnoreCase("Scheme2"));
+
+        headerInfos = aph.getHeaderInfo("Scheme name=value, Scheme2   name=value2");
+        assertEquals(headerInfos.size(), 2);
+        assertTrue(headerInfos.get(0).getType().equalsIgnoreCase("Scheme"));
+        assertTrue(headerInfos.get(0).getParameter("nAmE").equals("value"));
+        assertThat(headerInfos.get(1).getType(), equalToIgnoringCase("Scheme2"));
+
         assertTrue(headerInfos.get(1).getParameter("nAmE").equals("value2"));
 
         headerInfos = aph.getHeaderInfo("Scheme ,   ,, ,, name=value, Scheme2 name=value2");
@@ -785,8 +797,6 @@ public class HttpClientAuthenticationTest extends AbstractHttpClientServerTest
         AuthenticationProtocolHandler aph = new WWWAuthenticationProtocolHandler(client);
         List<HeaderInfo> headerInfoList = aph.getHeaderInfo("Digest param=\",f \"");
         assertEquals(1, headerInfoList.size());
-
-
 
         headerInfoList = aph.getHeaderInfo("Digest realm=\"thermostat\", qop=\",Digest realm=hello\", nonce=\"1523430383=\"");
         assertEquals(1, headerInfoList.size());

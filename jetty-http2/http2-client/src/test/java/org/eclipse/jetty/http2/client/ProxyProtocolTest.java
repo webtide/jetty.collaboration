@@ -18,8 +18,12 @@
 
 package org.eclipse.jetty.http2.client;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -146,14 +150,14 @@ public class ProxyProtocolTest
             {
                 try
                 {
-                    Assert.assertEquals("10.0.0.4",request.getRemoteAddr());
-                    Assert.assertEquals(33824,request.getRemotePort());
-                    Assert.assertEquals("10.0.0.5",request.getLocalAddr());
-                    Assert.assertEquals(8888,request.getLocalPort());
+                    assertEquals("10.0.0.4",request.getRemoteAddr());
+                    assertEquals(33824,request.getRemotePort());
+                    assertEquals("10.0.0.5",request.getLocalAddr());
+                    assertEquals(8888,request.getLocalPort());
                     EndPoint endPoint = baseRequest.getHttpChannel().getEndPoint();
-                    Assert.assertThat(endPoint, Matchers.instanceOf(ProxyConnectionFactory.ProxyEndPoint.class));
+                    assertThat(endPoint, instanceOf(ProxyConnectionFactory.ProxyEndPoint.class));
                     ProxyConnectionFactory.ProxyEndPoint proxyEndPoint = (ProxyConnectionFactory.ProxyEndPoint)endPoint;
-                    Assert.assertNotNull(proxyEndPoint.getAttribute(ProxyConnectionFactory.TLS_VERSION));
+                    assertNotNull(proxyEndPoint.getAttribute(ProxyConnectionFactory.TLS_VERSION));
                 }
                 catch(Throwable th)
                 {

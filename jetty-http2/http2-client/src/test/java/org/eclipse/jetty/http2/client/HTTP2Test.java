@@ -193,7 +193,7 @@ public class HTTP2Test extends AbstractTest
             }
         });
 
-        Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+        assertTrue(latch.await(5, TimeUnit.SECONDS));
     }
 
     @Test
@@ -279,7 +279,7 @@ public class HTTP2Test extends AbstractTest
             });
         }
 
-        assertTrue(server.dump() + System.lineSeparator() + client.dump(), latch.await(requests, TimeUnit.SECONDS));
+        assertTrue(latch.await(requests, TimeUnit.SECONDS), server.dump() + System.lineSeparator() + client.dump());
     }
 
     @Test

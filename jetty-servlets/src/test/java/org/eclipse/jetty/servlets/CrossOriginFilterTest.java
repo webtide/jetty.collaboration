@@ -245,12 +245,12 @@ public class CrossOriginFilterTest
             "Origin: " + origin + "\r\n" +
             "\r\n";
         String response = tester.getResponses(request);
-        Assert.assertTrue(response.contains("HTTP/1.1 200"));
-        Assert.assertTrue(response.contains(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER));
-        Assert.assertTrue(response.contains(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER));
-        Assert.assertFalse(response.contains(CrossOriginFilter.TIMING_ALLOW_ORIGIN_HEADER));
-        Assert.assertTrue(response.contains("Vary"));
-        Assert.assertTrue(latch.await(1, TimeUnit.SECONDS));
+        assertTrue(response.contains("HTTP/1.1 200"));
+        assertTrue(response.contains(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER));
+        assertTrue(response.contains(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER));
+        assertFalse(response.contains(CrossOriginFilter.TIMING_ALLOW_ORIGIN_HEADER));
+        assertTrue(response.contains("Vary"));
+        assertTrue(latch.await(1, TimeUnit.SECONDS));
     }
     
     @Test
@@ -272,12 +272,12 @@ public class CrossOriginFilterTest
             "Origin: " + origin + "\r\n" +
             "\r\n";
         String response = tester.getResponses(request);
-        Assert.assertTrue(response.contains("HTTP/1.1 200"));
-        Assert.assertTrue(response.contains(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER));
-        Assert.assertTrue(response.contains(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER));
-        Assert.assertTrue(response.contains(CrossOriginFilter.TIMING_ALLOW_ORIGIN_HEADER));
-        Assert.assertTrue(response.contains("Vary"));
-        Assert.assertTrue(latch.await(1, TimeUnit.SECONDS));
+        assertTrue(response.contains("HTTP/1.1 200"));
+        assertTrue(response.contains(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER));
+        assertTrue(response.contains(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER));
+        assertTrue(response.contains(CrossOriginFilter.TIMING_ALLOW_ORIGIN_HEADER));
+        assertTrue(response.contains("Vary"));
+        assertTrue(latch.await(1, TimeUnit.SECONDS));
     }
     
     @Test

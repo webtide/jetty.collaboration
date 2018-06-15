@@ -21,8 +21,8 @@ package org.eclipse.jetty.http2.client;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -150,7 +150,7 @@ public class InterleavingTest extends AbstractTest
         {
             DataFrameCallback dataFrameCallback = dataFrames.poll(5, TimeUnit.SECONDS);
             if (dataFrameCallback == null)
-                Assert.fail();
+                fail();
 
             DataFrame dataFrame = dataFrameCallback.frame;
             int streamId = dataFrame.getStreamId();

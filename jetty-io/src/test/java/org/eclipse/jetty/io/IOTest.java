@@ -54,6 +54,7 @@ import org.eclipse.jetty.util.BufferUtil;
 import org.eclipse.jetty.util.IO;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.OS;
 
 public class IOTest
 {
@@ -226,7 +227,7 @@ public class IOTest
                     catch (Exception e)
                     {
                         e.printStackTrace();
-                        assertTrue(OS.IS_OSX);
+                        assertTrue( OS.MAC.isCurrentOs());
                     }
                 }
             }

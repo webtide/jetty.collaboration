@@ -141,8 +141,8 @@ public class StreamCloseTest extends AbstractTest
                             @Override
                             public void succeeded()
                             {
-                                Assert.assertTrue(stream.isClosed());
-                                Assert.assertEquals(0, stream.getSession().getStreams().size());
+                                assertTrue(stream.isClosed());
+                                assertEquals(0, stream.getSession().getStreams().size());
                                 callback.succeeded();
                                 serverDataLatch.countDown();
                             }

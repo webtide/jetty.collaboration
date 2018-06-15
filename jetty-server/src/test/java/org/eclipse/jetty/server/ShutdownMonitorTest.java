@@ -33,6 +33,7 @@ import java.net.Socket;
 import org.eclipse.jetty.util.thread.ShutdownThread;
 import org.junit.jupiter.api.AfterEach;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ShutdownMonitorTest
@@ -73,14 +74,14 @@ public class ShutdownMonitorTest
         }
     }
 
-    @Ignore("Issue #2626")
+    @Disabled("Issue #2626")
     @Test
     public void testStartStopDifferentPortDifferentKey() throws Exception
     {
         testStartStop(false);
     }
 
-    @Ignore("Issue #2626")
+    @Disabled("Issue #2626")
     @Test
     public void testStartStopSamePortDifferentKey() throws Exception
     {

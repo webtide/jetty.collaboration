@@ -215,10 +215,10 @@ public abstract class ConnectorTimeoutTest extends HttpServerTestFixture
         TimeUnit.MILLISECONDS.sleep(2 * MAX_IDLE_TIME);
 
         // check the server side is closed
-        Assert.assertFalse(endPoint.isOpen());
+        assertFalse(endPoint.isOpen());
         Object transport = endPoint.getTransport();
         if (transport instanceof Channel)
-            Assert.assertFalse(((Channel)transport).isOpen());
+            assertFalse(((Channel)transport).isOpen());
     }
 
     @Test
@@ -272,17 +272,17 @@ public abstract class ConnectorTimeoutTest extends HttpServerTestFixture
         IO.toString(is);
 
         // check client reads EOF
-        Assert.assertEquals(-1, is.read());
-        Assert.assertTrue(endPoint.isOutputShutdown());
+        assertEquals(-1, is.read());
+        assertTrue(endPoint.isOutputShutdown());
 
         // The server has shutdown the output, the client does not close,
         // the server should idle timeout and close the connection.
         TimeUnit.MILLISECONDS.sleep(2 * MAX_IDLE_TIME);
 
-        Assert.assertFalse(endPoint.isOpen());
+        assertFalse(endPoint.isOpen());
         Object transport = endPoint.getTransport();
         if (transport instanceof Channel)
-            Assert.assertFalse(((Channel)transport).isOpen());
+            assertFalse(((Channel)transport).isOpen());
     }
 
     @Test
@@ -524,7 +524,7 @@ public abstract class ConnectorTimeoutTest extends HttpServerTestFixture
             try
             {
                 String response = IO.toString(is);
-                assertThat(response, Matchers.is(""));
+                assertThat(response, is(""));
                 assertEquals(-1, is.read());
             }
             catch (Exception e)

@@ -79,7 +79,7 @@ public class SelectChannelServerSslTest extends HttpServerTestBase
         _scheme="https";
     }
 
-    @Before
+    @BeforeEach
     public void init() throws Exception
     {
         String keystorePath = MavenTestingUtils.getTestResourcePath("keystore").toString();

@@ -59,8 +59,11 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.util.IO;
+import org.hamcrest.Matchers;
+import org.junit.Assume;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -765,7 +768,7 @@ public class HttpClientContinueTest extends AbstractTest<TransportScenario>
     @Test
     public void test_NoExpect_100Continue_ThenRedirect_Then100Continue_ThenResponse() throws Exception
     {
-        Assume.assumeThat(transport, Matchers.is(Transport.HTTP));
+        Assume.assumeThat( transport, Matchers.is( Transport.HTTP));
 
         startClient();
         client.setMaxConnectionsPerDestination(1);
@@ -811,7 +814,7 @@ public class HttpClientContinueTest extends AbstractTest<TransportScenario>
                 output.flush();
             }
 
-            Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+            assertTrue(latch.await(5, TimeUnit.SECONDS));
         }
     }
 

@@ -22,7 +22,6 @@ package org.eclipse.jetty.http2.hpack;
 import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpScheme;
-import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.http.MetaData;
 import org.eclipse.jetty.http2.hpack.HpackException.CompressionException;
 import org.eclipse.jetty.http2.hpack.HpackException.StreamException;

@@ -22,10 +22,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.condition.OS.LINUX;
 import static org.junit.jupiter.api.condition.OS.MAC;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -44,6 +44,7 @@ import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.toolchain.test.FS;
 import org.eclipse.jetty.unixsocket.client.HttpClientTransportOverUnixSockets;
 import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.jetty.util.log.Log;
@@ -74,7 +75,7 @@ public class UnixSocketTest
         } else {
             sockFile = Files.createTempFile("unix", ".sock" );
         }
-        Assert.assertTrue("temp sock file cannot be deleted", Files.deleteIfExists(sockFile));
+        assertTrue(Files.deleteIfExists(sockFile),"temp sock file cannot be deleted");
 
     }
     
@@ -86,7 +87,7 @@ public class UnixSocketTest
         if (server!=null)
             server.stop();
         // Force delete, this will fail if UnixSocket was not closed properly in the implementation
-        FS.delete(sockFile);
+        FS.delete( sockFile);
     }
     
     @Test

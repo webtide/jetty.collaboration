@@ -20,16 +20,12 @@ package org.eclipse.jetty.server.handler;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -192,14 +188,14 @@ public class ContextHandlerTest
         try
         {
             connector.getResponse("GET / HTTP/1.0\n" + "Host: www.example.com.\n\n");
-            Assert.assertTrue(handlerA.isHandled());
-            Assert.assertFalse(handlerB.isHandled());
-            Assert.assertFalse(handlerC.isHandled());
-            Assert.assertFalse(handlerD.isHandled());
-            Assert.assertFalse(handlerE.isHandled());
-            Assert.assertFalse(handlerF.isHandled());
-            Assert.assertFalse(handlerG.isHandled());
-            Assert.assertFalse(handlerH.isHandled());
+            assertTrue(handlerA.isHandled());
+            assertFalse(handlerB.isHandled());
+            assertFalse(handlerC.isHandled());
+            assertFalse(handlerD.isHandled());
+            assertFalse(handlerE.isHandled());
+            assertFalse(handlerF.isHandled());
+            assertFalse(handlerG.isHandled());
+            assertFalse(handlerH.isHandled());
             handlerA.reset();
             handlerB.reset();
             handlerC.reset();
@@ -210,14 +206,14 @@ public class ContextHandlerTest
             handlerH.reset();
 
             connector.getResponse("GET / HTTP/1.0\n" + "Host: localhost\n\n");
-            Assert.assertFalse(handlerA.isHandled());
-            Assert.assertFalse(handlerB.isHandled());
-            Assert.assertTrue(handlerC.isHandled());
-            Assert.assertFalse(handlerD.isHandled());
-            Assert.assertFalse(handlerE.isHandled());
-            Assert.assertFalse(handlerF.isHandled());
-            Assert.assertFalse(handlerG.isHandled());
-            Assert.assertFalse(handlerH.isHandled());
+            assertFalse(handlerA.isHandled());
+            assertFalse(handlerB.isHandled());
+            assertTrue(handlerC.isHandled());
+            assertFalse(handlerD.isHandled());
+            assertFalse(handlerE.isHandled());
+            assertFalse(handlerF.isHandled());
+            assertFalse(handlerG.isHandled());
+            assertFalse(handlerH.isHandled());
             handlerA.reset();
             handlerB.reset();
             handlerC.reset();
@@ -228,14 +224,14 @@ public class ContextHandlerTest
             handlerH.reset();
 
             connectorN.getResponse("GET / HTTP/1.0\n" + "Host: www.example.com.\n\n");
-            Assert.assertTrue(handlerA.isHandled());
-            Assert.assertFalse(handlerB.isHandled());
-            Assert.assertFalse(handlerC.isHandled());
-            Assert.assertFalse(handlerD.isHandled());
-            Assert.assertFalse(handlerE.isHandled());
-            Assert.assertFalse(handlerF.isHandled());
-            Assert.assertFalse(handlerG.isHandled());
-            Assert.assertFalse(handlerH.isHandled());
+            assertTrue(handlerA.isHandled());
+            assertFalse(handlerB.isHandled());
+            assertFalse(handlerC.isHandled());
+            assertFalse(handlerD.isHandled());
+            assertFalse(handlerE.isHandled());
+            assertFalse(handlerF.isHandled());
+            assertFalse(handlerG.isHandled());
+            assertFalse(handlerH.isHandled());
             handlerA.reset();
             handlerB.reset();
             handlerC.reset();
@@ -246,14 +242,14 @@ public class ContextHandlerTest
             handlerH.reset();
 
             connectorN.getResponse("GET / HTTP/1.0\n" + "Host: localhost\n\n");
-            Assert.assertFalse(handlerA.isHandled());
-            Assert.assertTrue(handlerB.isHandled());
-            Assert.assertFalse(handlerC.isHandled());
-            Assert.assertFalse(handlerD.isHandled());
-            Assert.assertFalse(handlerE.isHandled());
-            Assert.assertFalse(handlerF.isHandled());
-            Assert.assertFalse(handlerG.isHandled());
-            Assert.assertFalse(handlerH.isHandled());
+            assertFalse(handlerA.isHandled());
+            assertTrue(handlerB.isHandled());
+            assertFalse(handlerC.isHandled());
+            assertFalse(handlerD.isHandled());
+            assertFalse(handlerE.isHandled());
+            assertFalse(handlerF.isHandled());
+            assertFalse(handlerG.isHandled());
+            assertFalse(handlerH.isHandled());
             handlerA.reset();
             handlerB.reset();
             handlerC.reset();
@@ -287,14 +283,14 @@ public class ContextHandlerTest
         try
         {
             connector.getResponse("GET / HTTP/1.0\n" + "Host: www.example.com.\n\n");
-            Assert.assertFalse(handlerA.isHandled());
-            Assert.assertFalse(handlerB.isHandled());
-            Assert.assertFalse(handlerC.isHandled());
-            Assert.assertFalse(handlerD.isHandled());
-            Assert.assertTrue(handlerE.isHandled());
-            Assert.assertFalse(handlerF.isHandled());
-            Assert.assertFalse(handlerG.isHandled());
-            Assert.assertFalse(handlerH.isHandled());
+            assertFalse(handlerA.isHandled());
+            assertFalse(handlerB.isHandled());
+            assertFalse(handlerC.isHandled());
+            assertFalse(handlerD.isHandled());
+            assertTrue(handlerE.isHandled());
+            assertFalse(handlerF.isHandled());
+            assertFalse(handlerG.isHandled());
+            assertFalse(handlerH.isHandled());
             handlerA.reset();
             handlerB.reset();
             handlerC.reset();
@@ -305,14 +301,14 @@ public class ContextHandlerTest
             handlerH.reset();
 
             connector.getResponse("GET / HTTP/1.0\n" + "Host: localhost\n\n");
-            Assert.assertFalse(handlerA.isHandled());
-            Assert.assertFalse(handlerB.isHandled());
-            Assert.assertTrue(handlerC.isHandled());
-            Assert.assertFalse(handlerD.isHandled());
-            Assert.assertFalse(handlerE.isHandled());
-            Assert.assertFalse(handlerF.isHandled());
-            Assert.assertFalse(handlerG.isHandled());
-            Assert.assertFalse(handlerH.isHandled());
+            assertFalse(handlerA.isHandled());
+            assertFalse(handlerB.isHandled());
+            assertTrue(handlerC.isHandled());
+            assertFalse(handlerD.isHandled());
+            assertFalse(handlerE.isHandled());
+            assertFalse(handlerF.isHandled());
+            assertFalse(handlerG.isHandled());
+            assertFalse(handlerH.isHandled());
             handlerA.reset();
             handlerB.reset();
             handlerC.reset();
@@ -323,14 +319,14 @@ public class ContextHandlerTest
             handlerH.reset();
 
             connectorN.getResponse("GET / HTTP/1.0\n" + "Host: www.example.com.\n\n");
-            Assert.assertFalse(handlerA.isHandled());
-            Assert.assertFalse(handlerB.isHandled());
-            Assert.assertFalse(handlerC.isHandled());
-            Assert.assertFalse(handlerD.isHandled());
-            Assert.assertFalse(handlerE.isHandled());
-            Assert.assertTrue(handlerF.isHandled());
-            Assert.assertFalse(handlerG.isHandled());
-            Assert.assertFalse(handlerH.isHandled());
+            assertFalse(handlerA.isHandled());
+            assertFalse(handlerB.isHandled());
+            assertFalse(handlerC.isHandled());
+            assertFalse(handlerD.isHandled());
+            assertFalse(handlerE.isHandled());
+            assertTrue(handlerF.isHandled());
+            assertFalse(handlerG.isHandled());
+            assertFalse(handlerH.isHandled());
             handlerA.reset();
             handlerB.reset();
             handlerC.reset();
@@ -341,14 +337,14 @@ public class ContextHandlerTest
             handlerH.reset();
 
             connectorN.getResponse("GET / HTTP/1.0\n" + "Host: localhost\n\n");
-            Assert.assertFalse(handlerA.isHandled());
-            Assert.assertFalse(handlerB.isHandled());
-            Assert.assertTrue(handlerC.isHandled());
-            Assert.assertFalse(handlerD.isHandled());
-            Assert.assertFalse(handlerE.isHandled());
-            Assert.assertFalse(handlerF.isHandled());
-            Assert.assertFalse(handlerG.isHandled());
-            Assert.assertFalse(handlerH.isHandled());
+            assertFalse(handlerA.isHandled());
+            assertFalse(handlerB.isHandled());
+            assertTrue(handlerC.isHandled());
+            assertFalse(handlerD.isHandled());
+            assertFalse(handlerE.isHandled());
+            assertFalse(handlerF.isHandled());
+            assertFalse(handlerG.isHandled());
+            assertFalse(handlerH.isHandled());
             handlerA.reset();
             handlerB.reset();
             handlerC.reset();
@@ -550,7 +546,7 @@ public class ContextHandlerTest
 
         // test adding two more
         context.addVirtualHosts(new String[] { "foo.com@connector1", "*.example2.com"});
-        Assert.assertEquals(3, context.getVirtualHosts().length);
+        assertEquals(3, context.getVirtualHosts().length);
 
         // test adding existing context
         context.addVirtualHosts(new String[] { "www.example.com" });
@@ -558,7 +554,7 @@ public class ContextHandlerTest
 
         // test removing existing
         context.removeVirtualHosts(new String[] { "*.example2.com" });
-        Assert.assertEquals(2, context.getVirtualHosts().length);
+        assertEquals(2, context.getVirtualHosts().length);
 
         // test removing non-existent
         context.removeVirtualHosts(new String[] { "www.example3.com" });
@@ -566,7 +562,7 @@ public class ContextHandlerTest
 
         // test removing all remaining and resets to null
         context.removeVirtualHosts(new String[] { "www.example.com", "foo.com@connector1" });
-        Assert.assertArrayEquals(null, context.getVirtualHosts());
+        assertArrayEquals(null, context.getVirtualHosts());
 
     }
 
