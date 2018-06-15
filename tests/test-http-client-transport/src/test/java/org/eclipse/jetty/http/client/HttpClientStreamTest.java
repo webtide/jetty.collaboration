@@ -478,13 +478,13 @@ public class HttpClientStreamTest extends AbstractTest<TransportScenario>
     {
         init(transport);
         scenario.start(new EmptyServerHandler());
-        String uri = newURI();
+        String uri = scenario.newURI();
         scenario.server.stop();
 
         InputStreamResponseListener listener = new InputStreamResponseListener();
         // Connect to the wrong port
-        client.newRequest(uri)
-                .scheme(getScheme())
+        scenario.client.newRequest(uri)
+                .scheme(scenario.getScheme())
                 .send(listener);
         Result result = listener.await(5, TimeUnit.SECONDS);
         assertNotNull(result);

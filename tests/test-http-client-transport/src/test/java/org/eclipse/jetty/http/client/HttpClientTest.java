@@ -620,10 +620,11 @@ public class HttpClientTest extends AbstractTest<TransportScenario>
     }
 
     @Test
-    public void testHEADWithContentLengthGreaterThanMaxBufferingCapacity() throws Exception
+    @ArgumentsSource(TransportProvider.class)
+    public void testHEADWithContentLengthGreaterThanMaxBufferingCapacity(Transport transport) throws Exception
     {
         int length = 1024;
-        start(new HttpServlet()
+        scenario.start(new HttpServlet()
         {
             @Override
             protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
@@ -633,9 +634,10 @@ public class HttpClientTest extends AbstractTest<TransportScenario>
             }
         });
 
-        org.eclipse.jetty.client.api.Request request = client.newRequest(newURI())
+        org.eclipse.jetty.client.api.Request request = scenario.client
+                .newRequest(scenario.newURI())
                 .method(HttpMethod.HEAD)
-                .path(servletPath);
+                .path(scenario.servletPath);
         FutureResponseListener listener = new FutureResponseListener(request, length / 2);
         request.send(listener);
         ContentResponse response = listener.get(5, TimeUnit.SECONDS);

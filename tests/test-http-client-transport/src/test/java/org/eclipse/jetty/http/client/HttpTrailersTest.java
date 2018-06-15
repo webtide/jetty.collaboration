@@ -19,9 +19,7 @@
 package org.eclipse.jetty.http.client;
 
 import static org.eclipse.jetty.http.client.Transport.FCGI;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,6 +29,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -250,16 +249,17 @@ public class HttpTrailersTest extends AbstractTest<TransportScenario>
     }
 
     @Test
-    public void testResponseTrailersWithLargeContent() throws Exception
+    @ArgumentsSource(TransportProvider.class)
+    public void testResponseTrailersWithLargeContent(Transport transport) throws Exception
     {
         byte[] content = new byte[1024 * 1024];
         new Random().nextBytes(content);
         String trailerName = "Trailer";
         String trailerValue = "value";
-        start(new AbstractHandler.ErrorDispatchHandler()
+        scenario.start(new AbstractHandler.ErrorDispatchHandler()
         {
             @Override
-            protected void doNonErrorHandle(String target, Request jettyRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
+            protected void doNonErrorHandle(String target, Request jettyRequest, HttpServletRequest request, HttpServletResponse response) throws IOException
             {
                 jettyRequest.setHandled(true);
 
@@ -275,7 +275,7 @@ public class HttpTrailersTest extends AbstractTest<TransportScenario>
         });
 
         InputStreamResponseListener listener = new InputStreamResponseListener();
-        client.newRequest(newURI())
+        scenario.client.newRequest(scenario.newURI())
                 .timeout(15, TimeUnit.SECONDS)
                 .send(listener);
         org.eclipse.jetty.client.api.Response response = listener.get(5, TimeUnit.SECONDS);

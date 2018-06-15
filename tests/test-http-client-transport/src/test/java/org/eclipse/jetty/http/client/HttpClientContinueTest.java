@@ -766,12 +766,13 @@ public class HttpClientContinueTest extends AbstractTest<TransportScenario>
     }
 
     @Test
-    public void test_NoExpect_100Continue_ThenRedirect_Then100Continue_ThenResponse() throws Exception
+    @ArgumentsSource(TransportProvider.class)
+    public void test_NoExpect_100Continue_ThenRedirect_Then100Continue_ThenResponse(Transport transport) throws Exception
     {
         Assume.assumeThat( transport, Matchers.is( Transport.HTTP));
 
-        startClient();
-        client.setMaxConnectionsPerDestination(1);
+        scenario.startClient();
+        scenario.client.setMaxConnectionsPerDestination(1);
 
         try (ServerSocket server = new ServerSocket())
         {
@@ -779,7 +780,7 @@ public class HttpClientContinueTest extends AbstractTest<TransportScenario>
 
             // No Expect header, no content.
             CountDownLatch latch = new CountDownLatch(1);
-            client.newRequest("localhost", server.getLocalPort())
+            scenario.client.newRequest("localhost", server.getLocalPort())
                     .send(result ->
                     {
                         if (result.isSucceeded() && result.getResponse().getStatus() == HttpStatus.OK_200)
