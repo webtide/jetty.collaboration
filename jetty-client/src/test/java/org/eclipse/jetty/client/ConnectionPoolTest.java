@@ -48,10 +48,12 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.IO;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@Disabled // Disabled by @gregw on issue #2540 - commit 621b946b10884e7308eacca241dcf8b5d6f6cff2
 public class ConnectionPoolTest
 {
     private Server server;
@@ -60,9 +62,13 @@ public class ConnectionPoolTest
 
     public static Stream<Arguments> pools()
     {
-        List<ConnectionPool.Factory> pools = new ArrayList<>();
-        pools.add(destination -> new DuplexConnectionPool(destination, 8, destination));
-        pools.add(destination -> new RoundRobinConnectionPool(destination, 8, destination));
+        List<Object[]> pools = new ArrayList<>();
+        pools.add(new Object[] { DuplexConnectionPool.class,
+                (ConnectionPool.Factory)
+                        destination -> new DuplexConnectionPool(destination, 8, destination)});
+        pools.add(new Object[] { RoundRobinConnectionPool.class,
+                (ConnectionPool.Factory)
+                        destination -> new RoundRobinConnectionPool(destination, 8, destination)});
         return pools.stream().map(Arguments::of);
     }
 
@@ -75,22 +81,36 @@ public class ConnectionPoolTest
 
         HttpClientTransport transport = new HttpClientTransportOverHTTP(1);
         transport.setConnectionPoolFactory(factory);
-        client = new HttpClient(transport, null);
-        server.addBean(client);
-
         server.start();
+
+        client = new HttpClient(transport, null);
+        client.start();
     }
 
     @AfterEach
-    public void dispose() throws Exception
+    public void disposeServer() throws Exception
     {
+        connector = null;
         if (server != null)
+        {
             server.stop();
+            server = null;
+        }
     }
 
-    @ParameterizedTest
+    @AfterEach
+    public void disposeClient() throws Exception
+    {
+        if (client != null)
+        {
+            client.stop();
+            client = null;
+        }
+    }
+
+    @ParameterizedTest(name = "[{index}] {0}")
     @MethodSource("pools")
-    public void test(final ConnectionPool.Factory factory) throws Exception
+    public void test(Class<? extends ConnectionPool> connectionPoolClass, ConnectionPool.Factory factory) throws Exception
     {
         start(factory, new EmptyServerHandler()
         {

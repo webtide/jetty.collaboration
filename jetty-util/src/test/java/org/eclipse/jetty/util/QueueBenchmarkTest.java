@@ -32,10 +32,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
-@DisabledIfSystemProperty(named = "env", matches = "ci") // TODO: HIGH_CPU, HIGH_MEMORY, review
+// TODO: Review - this is a HIGH_CPU, HIGH_MEMORY test that takes 20 minutes to execute.
+// perhaps this should not be a normal every day testcase?
+// Move to a different module? make it not a junit testcase?
+@Disabled
 public class QueueBenchmarkTest
 {
     private static final Logger logger = Log.getLogger(QueueBenchmarkTest.class);

@@ -56,6 +56,7 @@ public abstract class AbstractHttpClientServerTest
             server = new Server(serverThreads);
         }
         connector = new ServerConnector(server, scenario.newSslContextFactory());
+        connector.setPort(0);
         server.addConnector(connector);
         server.setHandler(handler);
         server.start();
@@ -77,13 +78,23 @@ public abstract class AbstractHttpClientServerTest
     }
 
     @AfterEach
-    public void dispose() throws Exception
+    public void disposeClient() throws Exception
     {
         if (client != null)
+        {
             client.stop();
+            client = null;
+        }
+    }
+
+    @AfterEach
+    public void disposeServer() throws Exception
+    {
         if (server != null)
+        {
             server.stop();
-        server = null;
+            server = null;
+        }
     }
 
     public static class ScenarioProvider implements ArgumentsProvider {
@@ -122,6 +133,12 @@ public abstract class AbstractHttpClientServerTest
         {
             return HttpScheme.HTTP.asString();
         }
+
+        @Override
+        public String toString()
+        {
+            return "HTTP";
+        }
     }
 
     public static class SslScenario implements Scenario
@@ -142,6 +159,12 @@ public abstract class AbstractHttpClientServerTest
         public String getScheme()
         {
             return HttpScheme.HTTPS.asString();
+        }
+
+        @Override
+        public String toString()
+        {
+            return "HTTPS";
         }
     }
 }

@@ -117,7 +117,7 @@ public class WriteFlusherTest
         assertThat(e.getCause().getMessage(), containsString("CLOSED"));
 
         assertEquals("", endPoint.takeOutputString());
-        assertTrue(flusher.isIdle());
+        assertTrue(flusher.isFailed());
     }
 
     @Test
@@ -196,7 +196,7 @@ public class WriteFlusherTest
         assertThat(e.getCause().getMessage(), containsString("CLOSED"));
 
         assertEquals("", endPoint.takeOutputString());
-        assertTrue(flusher.isIdle());
+        assertTrue(flusher.isFailed());
     }
 
     @Test
@@ -237,7 +237,7 @@ public class WriteFlusherTest
         assertThat(e.getCause().getMessage(), containsString(reason));
 
         assertEquals("", endPoint.takeOutputString());
-        assertTrue(flusher.isIdle());
+        assertTrue(flusher.isFailed());
     }
 
     @Test

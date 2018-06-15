@@ -45,9 +45,12 @@ import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
+@Disabled
+@Tag("stress")
 public class AsyncStressTest
 {
     private static final Logger LOG = Log.getLogger(AsyncStressTest.class);
@@ -91,7 +94,6 @@ public class AsyncStressTest
     }
 
     @Test
-    @DisabledIfSystemProperty(named = "env", matches = "ci")
     public void testAsync() throws Throwable
     {
         doConnections(1600,240);

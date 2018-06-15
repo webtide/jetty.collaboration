@@ -18,24 +18,24 @@
 
 package org.eclipse.jetty.security;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.condition.OS.MAC;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.condition.OS.MAC;
+import static org.junit.jupiter.api.condition.OS.WINDOWS;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
@@ -109,10 +109,11 @@ public class PropertyUserStoreTest
 
     public WorkDir testdir;
 
-    private File initUsersText() throws Exception
+    private Path initUsersText() throws Exception
     {
-        Path dir = testdir.getEmptyPathDir();
-        File users = dir.resolve("users.txt").toFile();
+        Path dir = testdir.getPath();
+        Path users = dir.resolve("users.txt");
+        Files.deleteIfExists(users);
 
         writeUser( users );
         return users;
@@ -121,7 +122,7 @@ public class PropertyUserStoreTest
     private String initUsersPackedFileText()
         throws Exception
     {
-        Path dir = testdir.getEmptyPathDir();
+        Path dir = testdir.getPath();
         File users = dir.resolve( "users.txt" ).toFile();
         writeUser( users );
         File usersJar = dir.resolve( "users.jar" ).toFile();
@@ -152,10 +153,14 @@ public class PropertyUserStoreTest
         return "jar:" + usersJar.toURI().toASCIIString() + "!/" + entryPath;
     }
 
-    private void writeUser(File usersFile)
-        throws Exception
+    private void writeUser(File usersFile) throws IOException
     {
-        try (Writer writer = new BufferedWriter(new FileWriter(usersFile)))
+        writeUser(usersFile.toPath());
+    }
+
+    private void writeUser(Path usersFile) throws IOException
+    {
+        try (Writer writer = Files.newBufferedWriter(usersFile, UTF_8))
         {
             writer.append("tom: tom, roleA\n");
             writer.append("dick: dick, roleB\n");
@@ -163,10 +168,10 @@ public class PropertyUserStoreTest
         }
     }
 
-    private void addAdditionalUser(File usersFile, String userRef) throws Exception
+    private void addAdditionalUser(Path usersFile, String userRef) throws Exception
     {
         Thread.sleep(1001);
-        try (Writer writer = new BufferedWriter(new FileWriter(usersFile,true)))
+        try (Writer writer = Files.newBufferedWriter(usersFile, UTF_8, StandardOpenOption.APPEND))
         {
             writer.append(userRef);
         }
@@ -175,11 +180,13 @@ public class PropertyUserStoreTest
     @Test
     public void testPropertyUserStoreLoad() throws Exception
     {
+        testdir.ensureEmpty();
+
         final UserCount userCount = new UserCount();
-        final File usersFile = initUsersText();
+        final Path usersFile = initUsersText();
 
         PropertyUserStore store = new PropertyUserStore();
-        store.setConfigFile(usersFile);
+        store.setConfigFile(usersFile.toFile());
 
         store.registerUserListener(userCount);
 
@@ -200,12 +207,13 @@ public class PropertyUserStoreTest
             store.setConfig("file:/this/file/does/not/exist.txt");
             store.start();
         });
-
     }
 
     @Test
     public void testPropertyUserStoreLoadFromJarFile() throws Exception
     {
+        testdir.ensureEmpty();
+
         final UserCount userCount = new UserCount();
         final String usersFile = initUsersPackedFileText();
 
@@ -230,8 +238,10 @@ public class PropertyUserStoreTest
     @DisabledOnOs(MAC)
     public void testPropertyUserStoreLoadUpdateUser() throws Exception
     {
+        testdir.ensureEmpty();
+
         final UserCount userCount = new UserCount();
-        final File usersFile = initUsersText();
+        final Path usersFile = initUsersText();
         final AtomicInteger loadCount = new AtomicInteger(0);
         PropertyUserStore store = new PropertyUserStore()
         {
@@ -243,7 +253,7 @@ public class PropertyUserStoreTest
             }
         };
         store.setHotReload(true);
-        store.setConfigFile(usersFile);
+        store.setConfigFile(usersFile.toFile());
         store.registerUserListener(userCount);
 
         store.start();
@@ -272,19 +282,21 @@ public class PropertyUserStoreTest
     }
 
     @Test
-    @DisabledOnOs(MAC)
+    @DisabledOnOs({MAC, WINDOWS}) // File is locked on OS, cannot change.
     public void testPropertyUserStoreLoadRemoveUser() throws Exception
     {
+        testdir.ensureEmpty();
+
         final UserCount userCount = new UserCount();
         // initial user file (3) users
-        final File usersFile = initUsersText();
+        final Path usersFile = initUsersText();
         
         // adding 4th user
         addAdditionalUser(usersFile,"skip: skip, roleA\n");
 
         PropertyUserStore store = new PropertyUserStore();
         store.setHotReload(true);
-        store.setConfigFile(usersFile);
+        store.setConfigFile(usersFile.toFile());
 
         store.registerUserListener(userCount);
 

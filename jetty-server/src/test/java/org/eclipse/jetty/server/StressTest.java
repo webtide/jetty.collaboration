@@ -43,12 +43,16 @@ import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 
+@Disabled
+@Tag("stress")
+@DisabledOnOs(MAC) // TODO: needs investigation
 public class StressTest
 {
     private static final Logger LOG = Log.getLogger(StressTest.class);
@@ -123,15 +127,12 @@ public class StressTest
     }
 
     @Test
-    @DisabledOnOs(MAC) // TODO: needs investigation
     public void testMinNonPersistent() throws Throwable
     {
         doThreads(10,10,false);
     }
 
     @Test
-    @DisabledOnOs(MAC) // TODO: needs investigation
-    @DisabledIfSystemProperty(named = "env", matches = "ci")
     public void testNonPersistent() throws Throwable
     {
         doThreads(20,20,false);
@@ -142,15 +143,12 @@ public class StressTest
     }
 
     @Test
-    @DisabledOnOs(MAC) // TODO: needs investigation
     public void testMinPersistent() throws Throwable
     {
         doThreads(10,10,true);
     }
     
     @Test
-    @DisabledOnOs(MAC) // TODO: needs investigation
-    @DisabledIfSystemProperty(named = "env", matches = "ci")
     public void testPersistent() throws Throwable
     {
         doThreads(40,40,true);
