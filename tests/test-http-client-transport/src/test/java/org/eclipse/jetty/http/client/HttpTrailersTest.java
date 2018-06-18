@@ -19,7 +19,10 @@
 package org.eclipse.jetty.http.client;
 
 import static org.eclipse.jetty.http.client.Transport.FCGI;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,7 +32,6 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -46,7 +48,6 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
@@ -248,7 +249,7 @@ public class HttpTrailersTest extends AbstractTest<TransportScenario>
         assertNull(failure.get());
     }
 
-    @Test
+    @ParameterizedTest
     @ArgumentsSource(TransportProvider.class)
     public void testResponseTrailersWithLargeContent(Transport transport) throws Exception
     {
@@ -256,6 +257,7 @@ public class HttpTrailersTest extends AbstractTest<TransportScenario>
         new Random().nextBytes(content);
         String trailerName = "Trailer";
         String trailerValue = "value";
+        init(transport);
         scenario.start(new AbstractHandler.ErrorDispatchHandler()
         {
             @Override

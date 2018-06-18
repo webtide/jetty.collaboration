@@ -60,7 +60,6 @@ import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
@@ -619,11 +618,12 @@ public class HttpClientTest extends AbstractTest<TransportScenario>
         assertEquals(0, response.getContent().length);
     }
 
-    @Test
+    @ParameterizedTest
     @ArgumentsSource(TransportProvider.class)
     public void testHEADWithContentLengthGreaterThanMaxBufferingCapacity(Transport transport) throws Exception
     {
         int length = 1024;
+        init(transport);
         scenario.start(new HttpServlet()
         {
             @Override

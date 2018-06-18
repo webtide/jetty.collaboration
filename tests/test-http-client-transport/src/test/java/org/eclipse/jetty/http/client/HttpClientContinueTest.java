@@ -19,13 +19,13 @@
 package org.eclipse.jetty.http.client;
 
 import static org.eclipse.jetty.http.client.Transport.FCGI;
-import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -60,7 +60,6 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.util.IO;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -72,7 +71,7 @@ public class HttpClientContinueTest extends AbstractTest<TransportScenario>
     public void init(Transport transport) throws IOException
     {
         // Skip FCGI for now.
-        Assumptions.assumeTrue(transport != FCGI);
+        assumeTrue(transport != FCGI);
         setScenario(new TransportScenario(transport));
     }
 
@@ -679,7 +678,7 @@ public class HttpClientContinueTest extends AbstractTest<TransportScenario>
     public void test_Expect100Continue_WithTwoResponsesInOneRead(Transport transport) throws Exception
     {
         init(transport);
-        Assumptions.assumeTrue(scenario.isHttp1Based());
+        assumeTrue(scenario.transport.isHttp1Based());
 
         // There is a chance that the server replies with the 100 Continue response
         // and immediately after with the "normal" response, say a 200 OK.
@@ -767,8 +766,8 @@ public class HttpClientContinueTest extends AbstractTest<TransportScenario>
     @ArgumentsSource(TransportProvider.class)
     public void test_NoExpect_100Continue_ThenRedirect_Then100Continue_ThenResponse(Transport transport) throws Exception
     {
-        assumeTrue(transport == Transport.HTTP); // TODO: modify ArgumentsSource
         init(transport);
+        assumeTrue(scenario.transport.isHttp1Based());
 
         scenario.startClient();
         scenario.client.setMaxConnectionsPerDestination(1);
