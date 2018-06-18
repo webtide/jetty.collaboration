@@ -170,7 +170,7 @@ public class AttributeNormalizerTest
     public void testNormalizeJettyBaseAsFile(final Scenario scenario)
     {
         // Normalize jetty.base as File path
-        assertNormalize(scenario, new File(scenario.jettyBase), "${jetty.base}");
+        assertNormalize(scenario, scenario.jettyBase.toFile(), "${jetty.base}");
     }
 
     @ParameterizedTest
@@ -179,46 +179,42 @@ public class AttributeNormalizerTest
     {
         // Normalize jetty.home as File path
         String expected = scenario.jettyBase.equals(scenario.jettyHome)?"${jetty.base}":"${jetty.home}";
-        assertNormalize(scenario, new File(scenario.jettyHome), expected);
+        assertNormalize(scenario, scenario.jettyHome.toFile(), expected);
     }
 
     @ParameterizedTest
-    @MethodSource("scenarios") // TODO: Path impl
+    @MethodSource("scenarios")
     public void testNormalizeJettyBaseAsPath(final Scenario scenario)
     {
         // Normalize jetty.base as File path
-        //assertNormalize(scenario, scenario.jettyBase.toPath(), "${jetty.base}");
         assertNormalize(scenario, scenario.jettyBase, "${jetty.base}");
     }
 
     @ParameterizedTest
-    @MethodSource("scenarios") // TODO: Path impl
+    @MethodSource("scenarios")
     public void testNormalizeJettyHomeAsPath(final Scenario scenario)
     {
         // Normalize jetty.home as File path
         String expected = scenario.jettyBase.equals(scenario.jettyHome)?"${jetty.base}":"${jetty.home}";
-        //assertNormalize(scenario, scenario.jettyHome.toPath(), expected);
         assertNormalize(scenario, scenario.jettyHome, expected);
     }
 
     @ParameterizedTest
-    @MethodSource("scenarios") // TODO
+    @MethodSource("scenarios")
     public void testNormalizeJettyBaseAsURI_WithAuthority(final Scenario scenario)
     {
         // Normalize jetty.base as URI path
         // Path.toUri() typically includes an URI authority
-        //assertNormalize(scenario, scenario.jettyBase.toUri(), "${jetty.base.uri}");
-        assertNormalize(scenario, scenario.jettyBase, "${jetty.base.uri}");
+        assertNormalize(scenario, scenario.jettyBase.toUri(), "${jetty.base.uri}");
     }
 
     @ParameterizedTest
-    @MethodSource("scenarios") // TODO
+    @MethodSource("scenarios")
     public void testNormalizeJettyBaseAsURI_WithoutAuthority(final Scenario scenario)
     {
         // Normalize jetty.base as URI path
         // File.toURI() typically DOES NOT include an URI authority
-        //assertNormalize(scenario, scenario.jettyBase.toFile().toURI(), "${jetty.base.uri}");
-        assertNormalize(scenario, scenario.jettyBase, "${jetty.base.uri}");
+        assertNormalize(scenario, scenario.jettyBase.toFile().toURI(), "${jetty.base.uri}");
     }
 
     @ParameterizedTest
@@ -229,8 +225,7 @@ public class AttributeNormalizerTest
         String expected = scenario.jettyBase.equals(scenario.jettyHome)?"${jetty.base.uri}":"${jetty.home.uri}";
 
         // Path.toUri() typically includes an URI authority
-        //assertNormalize(scenario, scenario.jettyHome.toUri(), expected);
-        assertNormalize(scenario, scenario.jettyHome, expected);
+        assertNormalize(scenario, scenario.jettyHome.toUri(), expected);
     }
 
     @ParameterizedTest
@@ -241,8 +236,7 @@ public class AttributeNormalizerTest
         String expected = scenario.jettyBase.equals(scenario.jettyHome)?"${jetty.base.uri}":"${jetty.home.uri}";
 
         // File.toURI() typically DOES NOT include an URI authority
-        //assertNormalize(scenario, scenario.jettyHome.toUri(), expected);
-        assertNormalize(scenario, scenario.jettyHome, expected);
+        assertNormalize(scenario, scenario.jettyHome.toFile().toURI(), expected);
     }
 
     @ParameterizedTest
@@ -250,7 +244,7 @@ public class AttributeNormalizerTest
     public void testExpandJettyBase(final Scenario scenario)
     {
         // Expand jetty.base
-        assertExpandPath(scenario, "${jetty.base}", scenario.jettyBase);
+        assertExpandPath(scenario, "${jetty.base}", scenario.jettyBase.toString());
     }
 
     @ParameterizedTest
@@ -258,7 +252,7 @@ public class AttributeNormalizerTest
     public void testExpandJettyHome(final Scenario scenario)
     {
         // Expand jetty.home
-        assertExpandPath(scenario, "${jetty.home}", scenario.jettyHome);
+        assertExpandPath(scenario, "${jetty.home}", scenario.jettyHome.toString());
     }
 
     @ParameterizedTest
@@ -309,8 +303,8 @@ public class AttributeNormalizerTest
 
     public static class Scenario
     {
-        private final String jettyHome;
-        private final String jettyBase;
+        private final Path jettyHome;
+        private final Path jettyBase;
         private final String war;
         private final String arch;
         private final String title;
@@ -324,8 +318,8 @@ public class AttributeNormalizerTest
             this.env = env;
 
             // Grab specific values of interest in general
-            jettyHome = env.get("jetty.home");
-            jettyBase = env.get("jetty.base");
+            jettyHome = new File(env.get("jetty.home")).toPath().toAbsolutePath();
+            jettyBase = new File(env.get("jetty.base")).toPath().toAbsolutePath();
             war = env.get("WAR");
 
             // Set environment (skipping null and WAR)
