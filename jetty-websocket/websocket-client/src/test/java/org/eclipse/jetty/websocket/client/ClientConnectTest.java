@@ -449,7 +449,10 @@ public class ClientConnectTest
 
             if (e instanceof ExecutionException)
             {
-                assertExpectedError((ExecutionException) e, wsocket, instanceOf(ConnectException.class));
+                assertExpectedError((ExecutionException) e, wsocket, anyOf(
+                        instanceOf(ConnectException.class),
+                        instanceOf(UpgradeException.class)
+                ));
             }
             else
             {

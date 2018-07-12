@@ -18,6 +18,8 @@
 
 package org.eclipse.jetty.servlet;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -97,8 +99,8 @@ public class StatisticsServletTest
         response = getResponse("/stats?xml=true" );
         stats = parseStats( response );
 
-        assertEquals(3, stats.responses2xx);
-        assertEquals(1, stats.responses4xx);
+        assertThat("2XX Response Count" + response, stats.responses2xx, is(3));
+        assertThat("4XX Response Count" + response, stats.responses4xx, is(1));
     }
 
     public String getResponse( String path )
