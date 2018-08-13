@@ -268,8 +268,8 @@ public class HpackEncoderTest
         
         HpackContext context = encoder.getHpackContext();
         
-        Assert.assertThat(context.getMaxDynamicTableSize(),Matchers.is(50));
-        Assert.assertThat(context.size(),Matchers.is(1));
+        assertThat(context.getMaxDynamicTableSize(),Matchers.is(50));
+        assertThat(context.size(),Matchers.is(1));
         
 
     }

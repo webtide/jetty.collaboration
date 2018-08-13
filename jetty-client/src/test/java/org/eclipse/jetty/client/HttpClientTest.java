@@ -530,7 +530,26 @@ public class HttpClientTest extends AbstractHttpClientServerTest
     @ArgumentsSource(ScenarioProvider.class)
     public void test_ExchangeIsComplete_OnlyWhenBothRequestAndResponseAreComplete(Scenario scenario) throws Exception
     {
-        start(scenario, new RespondThenConsumeHandler());
+        start(scenario,new AbstractHandler.ErrorDispatchHandler()
+        {
+            @Override
+            protected void doNonErrorHandle(String target, org.eclipse.jetty.server.Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException
+            {
+                baseRequest.setHandled(true);
+                response.setContentLength(0);
+                response.setStatus(200);
+                response.flushBuffer();
+
+                byte[] buffer = new byte[1024];
+                InputStream in = request.getInputStream();
+                while(true)
+                {
+                    int read = in.read(buffer);
+                    if (read < 0)
+                        break;
+                }
+            }
+        });
 
         // Prepare a big file to upload
         Path targetTestsDir = testdir.getEmptyPathDir();
@@ -548,29 +567,29 @@ public class HttpClientTest extends AbstractHttpClientServerTest
         final AtomicLong requestTime = new AtomicLong();
         final AtomicLong responseTime = new AtomicLong();
         client.newRequest("localhost", connector.getLocalPort())
-                .scheme(scenario.getScheme())
-                .file(file)
-                .onRequestSuccess(request ->
+            .scheme(scenario.getScheme())
+            .file(file)
+            .onRequestSuccess(request ->
+                              {
+                                  requestTime.set(System.nanoTime());
+                                  latch.countDown();
+                              })
+            .send(new Response.Listener.Adapter()
+            {
+                @Override
+                public void onSuccess(Response response)
                 {
-                    requestTime.set(System.nanoTime());
+                    responseTime.set(System.nanoTime());
                     latch.countDown();
-                })
-                .send(new Response.Listener.Adapter()
-                {
-                    @Override
-                    public void onSuccess(Response response)
-                    {
-                        responseTime.set(System.nanoTime());
-                        latch.countDown();
-                    }
+                }
 
-                    @Override
-                    public void onComplete(Result result)
-                    {
-                        exchangeTime.set(System.nanoTime());
-                        latch.countDown();
-                    }
-                });
+                @Override
+                public void onComplete(Result result)
+                {
+                    exchangeTime.set(System.nanoTime());
+                    latch.countDown();
+                }
+            });
 
         assertTrue(latch.await(10, TimeUnit.SECONDS));
 
@@ -583,6 +602,7 @@ public class HttpClientTest extends AbstractHttpClientServerTest
 
         Files.delete(file);
     }
+
 
     @ParameterizedTest
     @ArgumentsSource(ScenarioProvider.class)

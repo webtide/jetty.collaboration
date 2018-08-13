@@ -18,6 +18,7 @@
 
 package org.eclipse.jetty.websocket.jsr356.server;
 
+import static java.time.Duration.ofSeconds;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
@@ -61,6 +62,7 @@ import org.eclipse.jetty.websocket.api.util.WSURI;
 import org.eclipse.jetty.websocket.jsr356.ClientContainer;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 public class DelayedStartClientOnServerTest
 {
@@ -255,29 +257,32 @@ public class DelayedStartClientOnServerTest
         }
     }
     
-    @Test(timeout = 5000)
+    @Test
     public void testHttpClientThreads_AfterServerConnectTo() throws Exception
     {
-        Server server = new Server(0);
-        ServletContextHandler contextHandler = new ServletContextHandler();
-        server.setHandler(contextHandler);
-        // Using JSR356 Server Techniques to connectToServer()
-        contextHandler.addServlet(ServerConnectServlet.class, "/connect");
-        javax.websocket.server.ServerContainer container = WebSocketServerContainerInitializer.configureContext(contextHandler);
-        container.addEndpoint(EchoSocket.class);
-        try
-        {
-            server.start();
-            String response = GET(server.getURI().resolve("/connect"));
-            assertThat("Response", response, startsWith("Connected to ws://"));
-            List<String> threadNames = getThreadNames((ContainerLifeCycle)container, server);
-            assertNoHttpClientPoolThreads(threadNames);
-            assertThat("Threads", threadNames, hasItem(containsString("WebSocketClient@")));
-        }
-        finally
-        {
-            server.stop();
-        }
+        assertTimeoutPreemptively(ofSeconds(5),() -> {
+            Server server = new Server(0);
+            ServletContextHandler contextHandler = new ServletContextHandler();
+            server.setHandler(contextHandler);
+            // Using JSR356 Server Techniques to connectToServer()
+            contextHandler.addServlet(ServerConnectServlet.class, "/connect");
+            javax.websocket.server.ServerContainer container = WebSocketServerContainerInitializer.configureContext(contextHandler);
+            container.addEndpoint(EchoSocket.class);
+            try
+            {
+                server.start();
+                String response = GET(server.getURI().resolve("/connect"));
+                assertThat("Response", response, startsWith("Connected to ws://"));
+                List<String> threadNames = getThreadNames((ContainerLifeCycle)container, server);
+                assertNoHttpClientPoolThreads(threadNames);
+                assertThat("Threads", threadNames, hasItem(containsString("WebSocketClient@")));
+            }
+            finally
+            {
+                server.stop();
+            }
+        } );
+
     }
     
     @Test
