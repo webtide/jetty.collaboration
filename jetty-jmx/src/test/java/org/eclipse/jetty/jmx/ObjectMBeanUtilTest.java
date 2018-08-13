@@ -126,13 +126,12 @@ public class ObjectMBeanUtilTest
         setUpGetAttribute("doodle4","charu");
 
         // when
-        assertThrows(ReflectionException.class, ()-> {
+        ReflectionException e = assertThrows(ReflectionException.class, ()-> {
             objectMBean.getAttribute("doodle4");
         });
 
         // then
-
-        fail("An InvocationTargetException must have occurred by now as doodle4() internally throwing exception");
+        assertNotNull(e, "An InvocationTargetException must have occurred by now as doodle4() internally throwing exception");
     }
 
     private void setUpGetAttribute(String property, String value) throws Exception
@@ -145,12 +144,12 @@ public class ObjectMBeanUtilTest
     public void testGetAttributeAttributeNotFoundException() throws Exception
     {
         // when
-        assertThrows(AttributeNotFoundException.class, ()->{
+        AttributeNotFoundException e = assertThrows(AttributeNotFoundException.class, ()->{
             objectMBean.getAttribute("ffname");
         });
 
         // then
-        fail("An AttributeNotFoundException must have occurred by now as there is no " + "attribute with the name ffname in bean");
+        assertNotNull(e, "An AttributeNotFoundException must have occurred by now as there is no " + "attribute with the name ffname in bean");
     }
 
     @Test
@@ -173,12 +172,12 @@ public class ObjectMBeanUtilTest
         objectMBean.setAttribute(null);
 
         // when
-        assertThrows(AttributeNotFoundException.class, ()->{
+        AttributeNotFoundException e = assertThrows(AttributeNotFoundException.class, ()->{
             objectMBean.getAttribute(null);
         });
 
         // then
-        fail("An AttributeNotFoundException must have occurred by now as there is no attribute with the name null");
+        assertNotNull(e,"An AttributeNotFoundException must have occurred by now as there is no attribute with the name null");
     }
 
     @Test
@@ -188,12 +187,12 @@ public class ObjectMBeanUtilTest
         attribute = new Attribute("fnameee","charu");
 
         // when
-        assertThrows(AttributeNotFoundException.class, ()->{
+        AttributeNotFoundException e = assertThrows(AttributeNotFoundException.class, ()->{
             objectMBean.setAttribute(attribute);
         });
 
         // then
-        fail("An AttributeNotFoundException must have occurred by now as there is no attribute " + "with the name ffname in bean");
+        assertNotNull(e, "An AttributeNotFoundException must have occurred by now as there is no attribute " + "with the name ffname in bean");
     }
 
     @Test
@@ -295,12 +294,12 @@ public class ObjectMBeanUtilTest
         setMBeanInfoForInvoke();
 
         // when
-        assertThrows(MBeanException.class, ()->{
+        MBeanException e = assertThrows(MBeanException.class, ()->{
             objectMBean.invoke("doodle2",new Object[] {},new String[] {});
         });
 
         // then
-        fail("An MBeanException must have occurred by now as doodle2() in Derived bean throwing exception");
+        assertNotNull(e, "An MBeanException must have occurred by now as doodle2() in Derived bean throwing exception");
     }
 
     @Test
@@ -310,12 +309,12 @@ public class ObjectMBeanUtilTest
         setMBeanInfoForInvoke();
 
         // when
-        assertThrows(ReflectionException.class, ()->{
+        ReflectionException e = assertThrows(ReflectionException.class, ()->{
             objectMBean.invoke("doodle1",new Object[] {},new String[] {});
         });
 
         // then
-        fail("An ReflectionException must have occurred by now as doodle1() has private access in Derived bean");
+        assertNotNull(e, "ReflectionException is null");
     }
 
     @Test
@@ -340,13 +339,14 @@ public class ObjectMBeanUtilTest
         // when
         // DerivedMBean contains a managed method with the name good,we must
         // call this method without any arguments
-        assertThrows(ReflectionException.class, ()->{
+        ReflectionException e = assertThrows(ReflectionException.class, ()->{
             objectMBean.invoke("good",new Object[] {},new String[]
                     { "int aone" });
         });
 
         // then
-        fail("An ReflectionException must have occurred by now as we cannot call a methow with wrong signature");
+        assertNotNull(e, "An ReflectionException must have occurred by now as we cannot call a methow with wrong signature");
+
     }
 
     private void setMBeanInfoForInvoke()
