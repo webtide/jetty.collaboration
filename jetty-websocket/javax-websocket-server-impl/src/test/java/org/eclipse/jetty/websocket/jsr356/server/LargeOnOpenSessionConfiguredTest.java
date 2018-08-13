@@ -91,7 +91,7 @@ public class LargeOnOpenSessionConfiguredTest
             String msg = new String(txt,StandardCharsets.UTF_8);
             clientEcho.sendMessage(msg);
             LinkedBlockingQueue<String> msgs = clientEcho.incomingMessages;
-            assertEquals("Expected message",msg,msgs.poll(Timeouts.POLL_EVENT, Timeouts.POLL_EVENT_UNIT));
+            assertEquals(msg,msgs.poll(Timeouts.POLL_EVENT, Timeouts.POLL_EVENT_UNIT),"Expected message");
         }
         finally
         {
