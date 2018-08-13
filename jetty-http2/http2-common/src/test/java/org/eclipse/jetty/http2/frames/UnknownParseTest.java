@@ -26,8 +26,9 @@ import java.util.function.UnaryOperator;
 import org.eclipse.jetty.http2.parser.Parser;
 import org.eclipse.jetty.io.ByteBufferPool;
 import org.eclipse.jetty.io.MappedByteBufferPool;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class UnknownParseTest
 {
@@ -67,6 +68,6 @@ public class UnknownParseTest
                 parser.parse(fn.apply(buffer));
         }
 
-        Assert.assertFalse(failure.get());
+        assertFalse(failure.get());
     }
 }
