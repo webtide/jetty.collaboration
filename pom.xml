@@ -37,7 +37,7 @@
     <unix.socket.tmp></unix.socket.tmp>
 
     <!-- testing -->
-    <jetty.test.version>5.0-SNAPSHOT</jetty.test.version>
+    <jetty.test.version>5.0</jetty.test.version>
   </properties>
 
   <licenses>
