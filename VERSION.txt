@@ -1,3 +1,5 @@
+jetty-9.4.12-SNAPSHOT
+
 jetty-9.4.12.RC2 - 14 August 2018
  + 307 Monitor contention in AbstractNCSARequestLog
  + 901 Overriding SSL context KeyStoreType requires explicit override of
