@@ -71,6 +71,8 @@ public class DuplexConnectionPoolTest
         server = new Server();
 
         HttpConfiguration httpConfiguration = new HttpConfiguration();
+        httpConfiguration.setSendDateHeader(false);
+        httpConfiguration.setSendServerVersion(false);
         httpConfiguration.addCustomizer(new SecureRequestCustomizer());
 
         SslContextFactory sslContextFactory = new SslContextFactory();
