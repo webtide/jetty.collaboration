@@ -370,6 +370,11 @@ public class Request implements HttpServletRequest
     /* ------------------------------------------------------------ */
     private MultiMap<String> getParameters()
     {
+        if (_parameters != null)
+        {
+            return _parameters;
+        }
+
         if (!_contentParamsExtracted) 
         {
             // content parameters need boolean protection as they can only be read

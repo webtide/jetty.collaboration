@@ -20,6 +20,7 @@ package org.eclipse.jetty.server;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -45,8 +46,11 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.MultipartConfigElement;
@@ -71,6 +75,7 @@ import org.eclipse.jetty.toolchain.test.FS;
 import org.eclipse.jetty.toolchain.test.MavenTestingUtils;
 import org.eclipse.jetty.util.BufferUtil;
 import org.eclipse.jetty.util.IO;
+import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.log.StacklessLogging;
@@ -1136,7 +1141,64 @@ public class RequestTest
         // Not possible to read request content parameters?
         assertThat("response.x-bar", response.get("x-bar"), is("null")); // TODO: should this work?
     }
-    
+
+    @Test
+    public void testGetParameters_NoReParse() throws Exception
+    {
+        Handler handler = new AbstractHandler()
+        {
+            @Override
+            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
+            {
+                // Normal processing
+                baseRequest.setHandled(true);
+
+                Map<String,String[]> params1 = baseRequest.getParameterMap();
+                response.addHeader("X-params1", sorted(params1));
+
+                MultiMap<String> bogusParams = new MultiMap<>();
+                bogusParams.put("x","z");
+                baseRequest.setQueryParameters(bogusParams); // should not be reparsed / seen.
+
+                Map<String,String[]> params2 = baseRequest.getParameterMap();
+                response.addHeader("X-params2", sorted(params2));
+            }
+
+            private String sorted(Map<String,String[]> map)
+            {
+                return map.entrySet().stream()
+                        .sorted(Map.Entry.comparingByKey())
+                        .map(entry -> entry.getKey() + "=" +
+                           Stream.of(entry.getValue()).sorted().collect(Collectors.joining(", ", "[", "]"))
+                        )
+                        .collect(Collectors.joining(", "));
+            }
+        };
+
+        _server.stop();
+        _server.setHandler(handler);
+        _server.start();
+
+        String form =  "a=b&c=d&e=f";
+
+        String request="POST /?foo=bar HTTP/1.1\r\n"+
+                "Host: whatever\r\n"+
+                "Content-Type: application/x-www-form-urlencoded\r\n"+
+                "Content-Length: "+form.getBytes().length+"\r\n"+
+                "Connection: close\r\n"+
+                "\r\n"+
+                form;
+
+        HttpTester.Response response = HttpTester.parseResponse(_connector.getResponse(request));
+
+        String params1 = response.get("X-params1");
+        String params2 = response.get("X-params2");
+
+        assertThat("params2 should not contain param 'x'", params2, not(containsString("x=[z]")));
+
+        assertEquals(params1, params2);
+    }
+
     @Test
     public void testPartialRead() throws Exception
     {
@@ -1328,7 +1390,7 @@ public class RequestTest
                     200, TimeUnit.MILLISECONDS
                     );
         assertThat(response, containsString("200"));
-        assertThat(response, Matchers.not(containsString("Connection: close")));
+        assertThat(response, not(containsString("Connection: close")));
         assertThat(response, containsString("Hello World"));
 
         response=_connector.getResponse(
@@ -1358,7 +1420,7 @@ public class RequestTest
                     "\n"
                     );
         assertThat(response, containsString("200"));
-        assertThat(response, Matchers.not(containsString("Connection: close")));
+        assertThat(response, not(containsString("Connection: close")));
         assertThat(response, containsString("Hello World"));
 
         response=_connector.getResponse(
