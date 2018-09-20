@@ -40,12 +40,7 @@ import org.eclipse.jetty.websocket.common.endpoints.listeners.ListenerPingPongSo
 import org.eclipse.jetty.websocket.common.handshake.DummyUpgradeRequest;
 import org.eclipse.jetty.websocket.common.handshake.DummyUpgradeResponse;
 import org.eclipse.jetty.websocket.common.test.EventQueue;
-import org.eclipse.jetty.websocket.core.CloseStatus;
-import org.eclipse.jetty.websocket.core.FrameHandler;
-import org.eclipse.jetty.websocket.core.WebSocketBehavior;
-import org.eclipse.jetty.websocket.core.WebSocketPolicy;
-import org.eclipse.jetty.websocket.core.Frame;
-import org.eclipse.jetty.websocket.core.OpCode;
+import org.eclipse.jetty.websocket.core.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -65,7 +60,7 @@ public class JettyWebSocketFrameHandlerTest
     @BeforeClass
     public static void startContainer() throws Exception
     {
-        container = new DummyContainer(new WebSocketPolicy(WebSocketBehavior.SERVER));
+        container = new DummyContainer(new WebSocketPolicy());
         container.start();
     }
 
@@ -76,7 +71,7 @@ public class JettyWebSocketFrameHandlerTest
     }
 
     private JettyWebSocketFrameHandlerFactory endpointFactory = new JettyWebSocketFrameHandlerFactory(container);
-    private WebSocketPolicy policy = WebSocketPolicy.newServerPolicy();
+    private WebSocketPolicy policy = new WebSocketPolicy();
     private FrameHandler.CoreSession channel = new DummyChannel();
 
     private JettyWebSocketFrameHandler newLocalFrameHandler(Object wsEndpoint)

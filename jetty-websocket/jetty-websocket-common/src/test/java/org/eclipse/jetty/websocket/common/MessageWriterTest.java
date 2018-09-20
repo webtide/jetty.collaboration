@@ -50,7 +50,7 @@ public class MessageWriterTest
     @Before
     public void setupSession() throws Exception
     {
-        policy = WebSocketPolicy.newServerPolicy();
+        policy = new WebSocketPolicy();
         policy.setInputBufferSize(1024);
 
         remoteSocket = new OutgoingMessageCapture(policy);

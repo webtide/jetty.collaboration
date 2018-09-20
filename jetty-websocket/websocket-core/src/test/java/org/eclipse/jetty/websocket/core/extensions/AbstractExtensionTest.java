@@ -42,7 +42,7 @@ public abstract class AbstractExtensionTest
     @Before
     public void init()
     {
-        clientExtensions = new ExtensionTool(WebSocketPolicy.newClientPolicy(),bufferPool);
-        serverExtensions = new ExtensionTool(WebSocketPolicy.newServerPolicy(),bufferPool);
+        clientExtensions = new ExtensionTool(new WebSocketPolicy(),bufferPool);
+        serverExtensions = new ExtensionTool(new WebSocketPolicy(),bufferPool);
     }
 }

@@ -45,7 +45,7 @@ public class ParserReservedBitTest
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private WebSocketPolicy policy = new WebSocketPolicy(WebSocketBehavior.CLIENT);
+    private WebSocketPolicy policy = new WebSocketPolicy();
     private ByteBufferPool bufferPool = new MappedByteBufferPool();
     private boolean validatingGenerator = false;
 

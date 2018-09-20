@@ -54,16 +54,16 @@ public class GeneratorTest
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private static UnitGenerator unitGenerator = new UnitGenerator(WebSocketPolicy.newServerPolicy(), true);
-    private static WebSocketChannel channel = newChannel(WebSocketBehavior.SERVER);
+    private static UnitGenerator unitGenerator = new UnitGenerator(WebSocketCore.Behavior.SERVER);
+    private static WebSocketChannel channel = newChannel(WebSocketCore.Behavior.SERVER);
 
-    private static WebSocketChannel newChannel(WebSocketBehavior behavior)
+    private static WebSocketChannel newChannel(WebSocketCore.Behavior behavior)
     {
         ByteBufferPool bufferPool = new MappedByteBufferPool();
-        WebSocketPolicy policy = new WebSocketPolicy(behavior);
+        WebSocketPolicy policy = new WebSocketPolicy();
         ExtensionStack exStack = new ExtensionStack(new WebSocketExtensionRegistry());
         exStack.negotiate(new DecoratedObjectFactory(), policy, bufferPool, new LinkedList<>());
-        return new WebSocketChannel(new AbstractTestFrameHandler(), policy, exStack, "");
+        return new WebSocketChannel(new AbstractTestFrameHandler(), behavior, policy, exStack, "");
     }
 
     /**
@@ -1241,7 +1241,7 @@ public class GeneratorTest
         assertThat("Generated Buffer", completeBuffer.remaining(), is(expectedSize));
 
         // Parse complete buffer.
-        ParserCapture capture = new ParserCapture(new Parser(new MappedByteBufferPool()), true, WebSocketBehavior.SERVER);
+        ParserCapture capture = new ParserCapture(new Parser(new MappedByteBufferPool()), true, WebSocketCore.Behavior.SERVER);
 
         capture.parse(completeBuffer);
 

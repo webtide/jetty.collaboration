@@ -72,7 +72,7 @@ public class AcceptHashTest
     @Test
     public void testHashKey()
     {
-        String serverAccept = AcceptHash.hashKey(clientKey);
+        String serverAccept = WebSocketCore.hashKey(clientKey);
         assertThat("Hashed Key", serverAccept, is(expectedHash));
     }
 }

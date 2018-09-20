@@ -37,7 +37,7 @@ import org.junit.rules.ExpectedException;
 
 public abstract class AbstractJavaxWebSocketFrameHandlerTest
 {
-    protected static WebSocketPolicy clientPolicy = WebSocketPolicy.newClientPolicy();
+    protected static WebSocketPolicy clientPolicy = new WebSocketPolicy();
     protected static DummyContainer container;
     
     @BeforeClass

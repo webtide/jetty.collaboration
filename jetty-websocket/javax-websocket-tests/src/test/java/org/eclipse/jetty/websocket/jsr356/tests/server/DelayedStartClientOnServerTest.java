@@ -59,10 +59,10 @@ import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.util.component.ContainerLifeCycle;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ReservedThreadExecutor;
-import org.eclipse.jetty.websocket.core.WSURI;
 import org.eclipse.jetty.websocket.jsr356.client.JavaxWebSocketClientContainer;
 import org.eclipse.jetty.websocket.jsr356.server.JavaxWebSocketServerContainer;
 import org.eclipse.jetty.websocket.jsr356.server.JavaxWebSocketServerContainerInitializer;
+import org.eclipse.jetty.websocket.jsr356.tests.WSURI;
 import org.junit.Test;
 
 public class DelayedStartClientOnServerTest

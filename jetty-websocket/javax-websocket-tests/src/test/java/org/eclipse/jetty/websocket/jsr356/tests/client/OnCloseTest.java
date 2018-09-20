@@ -108,7 +108,7 @@ public class OnCloseTest
     @Test
     public void testOnCloseCall() throws Exception
     {
-        WebSocketPolicy policy = WebSocketPolicy.newClientPolicy();
+        WebSocketPolicy policy = new WebSocketPolicy();
         WSEventTracker endpoint = (WSEventTracker) testcase.closeClass.newInstance();
         
         ClientEndpointConfig config = new EmptyClientEndpointConfig();

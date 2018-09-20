@@ -44,7 +44,6 @@ import org.eclipse.jetty.websocket.common.message.ByteArrayMessageSink;
 import org.eclipse.jetty.websocket.common.message.InputStreamMessageSink;
 import org.eclipse.jetty.websocket.common.message.ReaderMessageSink;
 import org.eclipse.jetty.websocket.common.message.StringMessageSink;
-import org.eclipse.jetty.websocket.core.WebSocketBehavior;
 import org.eclipse.jetty.websocket.core.WebSocketPolicy;
 import org.hamcrest.Matcher;
 import org.junit.AfterClass;
@@ -62,7 +61,7 @@ public class LocalEndpointMetadataTest
     @BeforeClass
     public static void startContainer() throws Exception
     {
-        container = new DummyContainer(new WebSocketPolicy(WebSocketBehavior.SERVER));
+        container = new DummyContainer(new WebSocketPolicy());
         container.start();
     }
 

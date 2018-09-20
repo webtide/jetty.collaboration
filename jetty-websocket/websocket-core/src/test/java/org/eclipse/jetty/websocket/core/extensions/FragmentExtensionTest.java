@@ -51,7 +51,7 @@ public class FragmentExtensionTest extends AbstractExtensionTest
 
         FragmentExtension ext = new FragmentExtension();
         ExtensionConfig config = ExtensionConfig.parse("fragment;maxLength=4");
-        ext.init(config, WebSocketPolicy.newClientPolicy(), bufferPool);
+        ext.init(config, new WebSocketPolicy(), bufferPool);
 
         ext.setNextIncomingFrames(capture);
 
@@ -100,7 +100,7 @@ public class FragmentExtensionTest extends AbstractExtensionTest
 
         FragmentExtension ext = new FragmentExtension();
         ExtensionConfig config = ExtensionConfig.parse("fragment;maxLength=4");
-        ext.init(config, WebSocketPolicy.newServerPolicy(), bufferPool);
+        ext.init(config, new WebSocketPolicy(), bufferPool);
 
         ext.setNextIncomingFrames(capture);
 
@@ -134,7 +134,7 @@ public class FragmentExtensionTest extends AbstractExtensionTest
 
         FragmentExtension ext = new FragmentExtension();
         ExtensionConfig config = ExtensionConfig.parse("fragment;maxLength=20");
-        ext.init(config, WebSocketPolicy.newServerPolicy(), bufferPool);
+        ext.init(config, new WebSocketPolicy(), bufferPool);
 
         ext.setNextOutgoingFrames(capture);
 
@@ -205,7 +205,7 @@ public class FragmentExtensionTest extends AbstractExtensionTest
 
         FragmentExtension ext = new FragmentExtension();
         ExtensionConfig config = ExtensionConfig.parse("fragment");
-        ext.init(config, WebSocketPolicy.newServerPolicy(), bufferPool);
+        ext.init(config, new WebSocketPolicy(), bufferPool);
 
         ext.setNextOutgoingFrames(capture);
 
@@ -268,7 +268,7 @@ public class FragmentExtensionTest extends AbstractExtensionTest
 
         FragmentExtension ext = new FragmentExtension();
         ExtensionConfig config = ExtensionConfig.parse("fragment;maxLength=4");
-        ext.init(config, WebSocketPolicy.newServerPolicy(), bufferPool);
+        ext.init(config, new WebSocketPolicy(), bufferPool);
 
         ext.setNextOutgoingFrames(capture);
 
