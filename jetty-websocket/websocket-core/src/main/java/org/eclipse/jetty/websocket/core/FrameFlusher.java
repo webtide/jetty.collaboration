@@ -28,7 +28,11 @@ import org.eclipse.jetty.util.log.Logger;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+import java.util.Objects;
 
 public class FrameFlusher extends IteratingCallback
 {
@@ -41,12 +45,17 @@ public class FrameFlusher extends IteratingCallback
     private final Generator generator;
     private final int maxGather;
     private final Deque<FrameEntry> queue = new ArrayDeque<>();
-    private final List<FrameEntry> entries;
+    private final List<FrameEntry> pending;
     private final List<ByteBuffer> buffers;
     private boolean closed;
     private Throwable terminated;
     private ByteBuffer aggregate;
     private BatchMode batchMode;
+
+    public FrameFlusher(ByteBufferPool bufferPool, Generator generator, EndPoint endPoint, int bufferSize)
+    {
+        this(bufferPool,generator, endPoint,bufferSize, 8);
+    }
 
     public FrameFlusher(ByteBufferPool bufferPool, Generator generator, EndPoint endPoint, int bufferSize, int maxGather)
     {
@@ -55,7 +64,7 @@ public class FrameFlusher extends IteratingCallback
         this.bufferSize = bufferSize;
         this.generator = Objects.requireNonNull(generator);
         this.maxGather = maxGather;
-        this.entries = new ArrayList<>(maxGather);
+        this.pending = new ArrayList<>(maxGather);
         this.buffers = new ArrayList<>((maxGather * 2) + 1);
     }
 
@@ -99,7 +108,7 @@ public class FrameFlusher extends IteratingCallback
             if (terminated != null)
                 throw terminated;
 
-            while (!queue.isEmpty() && entries.size() <= maxGather)
+            while (!queue.isEmpty() && pending.size() <= maxGather)
             {
                 FrameEntry entry = queue.poll();
                 currentBatchMode = BatchMode.max(currentBatchMode, entry.batchMode);
@@ -120,14 +129,14 @@ public class FrameFlusher extends IteratingCallback
                 if (space <= 0)
                     currentBatchMode = BatchMode.OFF;
 
-                entries.add(entry);
+                pending.add(entry);
             }
         }
 
         if (LOG.isDebugEnabled())
-            LOG.debug("{} processing {} entries: {}", this, entries.size(), entries);
+            LOG.debug("{} processing {} pending: {}", this, pending.size(), pending);
 
-        if (entries.isEmpty())
+        if (pending.isEmpty())
         {
             if (batchMode != BatchMode.AUTO)
             {
@@ -157,7 +166,7 @@ public class FrameFlusher extends IteratingCallback
                 LOG.debug("{} acquired aggregate buffer {}", this, aggregate);
         }
 
-        for (FrameEntry entry : entries)
+        for (FrameEntry entry : pending)
         {
             entry.generateHeaderBytes(aggregate);
 
@@ -166,9 +175,9 @@ public class FrameFlusher extends IteratingCallback
                 BufferUtil.append(aggregate, payload);
         }
         if (LOG.isDebugEnabled())
-            LOG.debug("{} aggregated {} frames: {}", this, entries.size(), entries);
+            LOG.debug("{} aggregated {} frames: {}", this, pending.size(), pending);
 
-        // We just aggregated the entries, so we need to succeed their callbacks.
+        // We just aggregated the pending, so we need to succeed their callbacks.
         succeeded();
 
         return Action.SCHEDULED;
@@ -183,7 +192,7 @@ public class FrameFlusher extends IteratingCallback
                 LOG.debug("{} flushing aggregate {}", this, aggregate);
         }
 
-        for (FrameEntry entry : entries)
+        for (FrameEntry entry : pending)
         {
             // Skip the "synthetic" frame used for flushing.
             if (entry.frame == FLUSH_FRAME)
@@ -196,7 +205,7 @@ public class FrameFlusher extends IteratingCallback
         }
 
         if (LOG.isDebugEnabled())
-            LOG.debug("{} flushing {} frames: {}", this, entries.size(), entries);
+            LOG.debug("{} flushing {} frames: {}", this, pending.size(), pending);
 
         if (buffers.isEmpty())
         {
@@ -228,7 +237,7 @@ public class FrameFlusher extends IteratingCallback
 
     private void succeedEntries()
     {
-        for (FrameEntry entry : entries)
+        for (FrameEntry entry : pending)
         {
             notifyCallbackSuccess(entry.callback);
             entry.release();
@@ -238,7 +247,7 @@ public class FrameFlusher extends IteratingCallback
                 endPoint.shutdownOutput();
             }
         }
-        entries.clear();
+        pending.clear();
     }
 
     @Override
@@ -252,16 +261,16 @@ public class FrameFlusher extends IteratingCallback
             closed = terminated;
             if (closed == null)
                 terminated = failure;
-            entries.addAll(queue);
+            pending.addAll(queue);
             queue.clear();
         }
 
-        for (FrameEntry entry : entries)
+        for (FrameEntry entry : pending)
         {
             notifyCallbackFailure(entry.callback, failure);
             entry.release();
         }
-        entries.clear();
+        pending.clear();
     }
 
     private void releaseAggregate()

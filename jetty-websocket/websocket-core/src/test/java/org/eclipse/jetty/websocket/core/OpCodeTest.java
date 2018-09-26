@@ -23,7 +23,12 @@ import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.eclipse.jetty.websocket.core.OpCode.*;
+import static org.eclipse.jetty.websocket.core.OpCode.BINARY;
+import static org.eclipse.jetty.websocket.core.OpCode.CLOSE;
+import static org.eclipse.jetty.websocket.core.OpCode.CONTINUATION;
+import static org.eclipse.jetty.websocket.core.OpCode.PING;
+import static org.eclipse.jetty.websocket.core.OpCode.PONG;
+import static org.eclipse.jetty.websocket.core.OpCode.TEXT;
 import static org.junit.Assert.assertThat;
 
 public class OpCodeTest

@@ -18,14 +18,6 @@
 
 package org.eclipse.jetty.websocket.core;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.util.Objects;
-import java.util.Random;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-
 import org.eclipse.jetty.io.AbstractConnection;
 import org.eclipse.jetty.io.ByteBufferPool;
 import org.eclipse.jetty.io.Connection;
@@ -36,6 +28,14 @@ import org.eclipse.jetty.util.component.ContainerLifeCycle;
 import org.eclipse.jetty.util.component.Dumpable;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Provides the implementation of {@link org.eclipse.jetty.io.Connection} that is suitable for WebSocket
@@ -613,7 +613,7 @@ public class WebSocketConnection extends AbstractConnection implements Connectio
     {
         private Flusher(int bufferSize, Generator generator, EndPoint endpoint)
         {
-            super(bufferPool, generator, endpoint, bufferSize, 8);
+            super(bufferPool, generator, endpoint, bufferSize);
         }
 
         @Override
