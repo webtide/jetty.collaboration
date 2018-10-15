@@ -48,7 +48,6 @@ import java.util.function.Consumer;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
 /**
- * WebSocketServletFactory Implementation for working with WebSockets initiated from the Servlet API
  */
 public class WebSocketNegotiatorMap implements Dumpable, FrameHandler.CoreCustomizer
 {
@@ -106,20 +105,12 @@ public class WebSocketNegotiatorMap implements Dumpable, FrameHandler.CoreCustom
 
                     // Handling for response forbidden (and similar paths)
                     if (upgradeResponse.isCommitted())
-                    {
                         return null;
-                    }
 
                     if (websocketPojo == null)
                     {
                         // no creation, sorry
                         upgradeResponse.sendError(SC_SERVICE_UNAVAILABLE, "WebSocket Endpoint Creation Refused");
-                        return null;
-                    }
-
-                    if (frameHandlerFactories.isEmpty())
-                    {
-                        LOG.warn("There are no {} instances registered", FrameHandlerFactory.class);
                         return null;
                     }
 
@@ -129,6 +120,9 @@ public class WebSocketNegotiatorMap implements Dumpable, FrameHandler.CoreCustom
                         if (frameHandler != null)
                             return frameHandler;
                     }
+
+                    if (frameHandlerFactories.isEmpty())
+                        LOG.warn("There are no {} instances registered", FrameHandlerFactory.class);
 
                     // No factory worked!
                     return null;
@@ -197,6 +191,7 @@ public class WebSocketNegotiatorMap implements Dumpable, FrameHandler.CoreCustom
 
     public void addFrameHandlerFactory(FrameHandlerFactory frameHandlerFactory)
     {
+        // TODO should this be done by a ServiceLoader?
         this.frameHandlerFactories.add(frameHandlerFactory);
     }
 
@@ -264,8 +259,6 @@ public class WebSocketNegotiatorMap implements Dumpable, FrameHandler.CoreCustom
     {
         this.defaultAutoFragment = autoFragment;
     }
-
-
 
 
     /**
