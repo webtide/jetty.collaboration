@@ -26,6 +26,7 @@ import org.eclipse.jetty.http.pathmap.ServletPathSpec;
 import org.eclipse.jetty.http.pathmap.UriTemplatePathSpec;
 import org.eclipse.jetty.io.ByteBufferPool;
 import org.eclipse.jetty.io.MappedByteBufferPool;
+import org.eclipse.jetty.io.RuntimeIOException;
 import org.eclipse.jetty.util.DecoratedObjectFactory;
 import org.eclipse.jetty.util.component.ContainerLifeCycle;
 import org.eclipse.jetty.util.component.Dumpable;
@@ -33,23 +34,26 @@ import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.websocket.core.FrameHandler;
 import org.eclipse.jetty.websocket.core.WebSocketConstants;
-import org.eclipse.jetty.websocket.core.WebSocketException;
 import org.eclipse.jetty.websocket.core.WebSocketExtensionRegistry;
-import org.eclipse.jetty.websocket.servlet.internal.WebSocketServletNegotiator;
+import org.eclipse.jetty.websocket.core.server.Negotiation;
+import org.eclipse.jetty.websocket.core.server.WebSocketNegotiator;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Consumer;
+
+import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
 /**
  * WebSocketServletFactory Implementation for working with WebSockets initiated from the Servlet API
  */
-public class WebSocketServletFactory implements FrameHandlerFactory, Dumpable, FrameHandler.CoreCustomizer
+public class WebSocketNegotiatorMap implements Dumpable, FrameHandler.CoreCustomizer
 {
-    private static final Logger LOG = Log.getLogger(WebSocketServletFactory.class);
-    private final PathMappings<WebSocketServletNegotiator> mappings = new PathMappings<>();
+    private static final Logger LOG = Log.getLogger(WebSocketNegotiatorMap.class);
+    private final PathMappings<WebSocketNegotiator> mappings = new PathMappings<>();
     private final Set<FrameHandlerFactory> frameHandlerFactories = new HashSet<>();
     private Duration defaultIdleTimeout;
     private int defaultInputBufferSize;
@@ -63,12 +67,12 @@ public class WebSocketServletFactory implements FrameHandlerFactory, Dumpable, F
     private WebSocketExtensionRegistry extensionRegistry;
     private ByteBufferPool bufferPool;
 
-    public WebSocketServletFactory()
+    public WebSocketNegotiatorMap()
     {
         this(new WebSocketExtensionRegistry(), new DecoratedObjectFactory(), new MappedByteBufferPool());
     }
 
-    public WebSocketServletFactory(WebSocketExtensionRegistry extensionRegistry, DecoratedObjectFactory objectFactory, ByteBufferPool bufferPool)
+    public WebSocketNegotiatorMap(WebSocketExtensionRegistry extensionRegistry, DecoratedObjectFactory objectFactory, ByteBufferPool bufferPool)
     {
         this.extensionRegistry = extensionRegistry;
         this.objectFactory = objectFactory;
@@ -84,78 +88,70 @@ public class WebSocketServletFactory implements FrameHandlerFactory, Dumpable, F
      * </p>
      *
      * @param pathSpec the pathspec to respond on
-     * @param negotiator the WebSocketServletNegotiator to use
-     * @since 10.0
-     */
-    public void addMapping(PathSpec pathSpec, WebSocketServletNegotiator negotiator)
-    {
-        mappings.put(pathSpec, negotiator);
-    }
-
-    /**
-     * Manually add a WebSocket mapping.
-     * <p>
-     * If mapping is added before this configuration is started, then it is persisted through
-     * stop/start of this configuration's lifecycle.  Otherwise it will be removed when
-     * this configuration is stopped.
-     * </p>
-     *
-     * @param pathSpec the pathspec to respond on
      * @param creator the websocket creator to activate on the provided mapping.
      */
     public void addMapping(PathSpec pathSpec, WebSocketCreator creator)
     {
-        addMapping(pathSpec, new WebSocketServletNegotiator(this, creator, this));
-    }
-
-    /**
-     * Manually add a WebSocket mapping.
-     *
-     * @param pathSpec the pathspec to respond on
-     * @param endpointClass the endpoint class to use for new upgrade requests on the provided pathspec
-     */
-    public void addMapping(PathSpec pathSpec, final Class<?> endpointClass)
-    {
-        addMapping(pathSpec, (req, resp) ->
-        {
-            try
+        mappings.put(pathSpec, WebSocketNegotiator.from(negotiation ->
             {
-                return endpointClass.newInstance();
-            }
-            catch (InstantiationException | IllegalAccessException e)
-            {
-                throw new WebSocketException("Unable to create instance of " + endpointClass.getName(), e);
-            }
-        });
+                ClassLoader old = Thread.currentThread().getContextClassLoader();
+                try
+                {
+                    Thread.currentThread().setContextClassLoader(getContextClassloader());
+
+                    ServletUpgradeRequest upgradeRequest = new ServletUpgradeRequest(negotiation);
+                    ServletUpgradeResponse upgradeResponse = new ServletUpgradeResponse(negotiation);
+
+                    Object websocketPojo = creator.createWebSocket(upgradeRequest, upgradeResponse);
+
+                    // Handling for response forbidden (and similar paths)
+                    if (upgradeResponse.isCommitted())
+                    {
+                        return null;
+                    }
+
+                    if (websocketPojo == null)
+                    {
+                        // no creation, sorry
+                        upgradeResponse.sendError(SC_SERVICE_UNAVAILABLE, "WebSocket Endpoint Creation Refused");
+                        return null;
+                    }
+
+                    if (frameHandlerFactories.isEmpty())
+                    {
+                        LOG.warn("There are no {} instances registered", FrameHandlerFactory.class);
+                        return null;
+                    }
+
+                    for (FrameHandlerFactory factory : frameHandlerFactories)
+                    {
+                        FrameHandler frameHandler = factory.newFrameHandler(websocketPojo, upgradeRequest, upgradeResponse);
+                        if (frameHandler != null)
+                            return frameHandler;
+                    }
+
+                    // No factory worked!
+                    return null;
+                }
+                catch (IOException e)
+                {
+                    throw new RuntimeIOException(e);
+                }
+                catch (URISyntaxException e)
+                {
+                    throw new RuntimeIOException("Unable to negotiate websocket due to mangled request URI", e);
+                }
+                finally
+                {
+                    Thread.currentThread().setContextClassLoader(old);
+                }
+            },
+            getExtensionRegistry(),
+            getObjectFactory(),
+            getBufferPool(),
+            this));
     }
 
-    /**
-     * add a WebSocket mapping to a provided {@link WebSocketCreator}.
-     * <p>
-     * If mapping is added before this configuration is started, then it is persisted through
-     * stop/start of this configuration's lifecycle.  Otherwise it will be removed when
-     * this configuration is stopped.
-     * </p>
-     *
-     * @param rawSpec the pathspec to respond on
-     * @param creator the WebSocketCreator to use
-     * @since 10.0
-     */
-    public void addMapping(String rawSpec, WebSocketCreator creator)
-    {
-        addMapping(parsePathSpec(rawSpec), creator);
-    }
-
-    /**
-     * Manually add a WebSocket mapping.
-     *
-     * @param rawSpec the pathspec to map to (see {@link #addMapping(String, WebSocketCreator)} for syntax details)
-     * @param endpointClass the endpoint class to use for new upgrade requests on the provided pathspec
-     */
-    public void addMapping(String rawSpec, final Class<?> endpointClass)
-    {
-        addMapping(parsePathSpec(rawSpec), endpointClass);
-    }
 
     @Override
     public String dump()
@@ -202,26 +198,6 @@ public class WebSocketServletFactory implements FrameHandlerFactory, Dumpable, F
     public void addFrameHandlerFactory(FrameHandlerFactory frameHandlerFactory)
     {
         this.frameHandlerFactories.add(frameHandlerFactory);
-    }
-
-    @Override
-    public FrameHandler newFrameHandler(Object websocketPojo, ServletUpgradeRequest upgradeRequest, ServletUpgradeResponse upgradeResponse)
-    {
-        if (frameHandlerFactories.isEmpty())
-        {
-            LOG.warn("There are no {} instances registered", FrameHandlerFactory.class);
-            return null;
-        }
-
-        for (FrameHandlerFactory factory : frameHandlerFactories)
-        {
-            FrameHandler frameHandler = factory.newFrameHandler(websocketPojo, upgradeRequest, upgradeResponse);
-            if (frameHandler != null)
-                return frameHandler;
-        }
-
-        // No factory worked!
-        return null;
     }
 
     public void setDefaultIdleTimeout(Duration duration)
@@ -289,52 +265,8 @@ public class WebSocketServletFactory implements FrameHandlerFactory, Dumpable, F
         this.defaultAutoFragment = autoFragment;
     }
 
-    /**
-     * Returns the creator for the given path spec.
-     *
-     * @param pathSpec the pathspec to respond on
-     * @return the websocket creator if path spec exists, or null
-     */
-    public WebSocketCreator getMapping(PathSpec pathSpec)
-    {
-        WebSocketServletNegotiator negotiator = getNegotiator(pathSpec);
-        if(negotiator == null)
-            return null;
 
-        return negotiator.getCreator();
-    }
 
-    public WebSocketServletNegotiator getNegotiator(PathSpec pathSpec)
-    {
-        for (MappedResource<WebSocketServletNegotiator> mapping : mappings)
-        {
-            if (mapping.getPathSpec().equals(pathSpec))
-            {
-                return mapping.getResource();
-            }
-        }
-        return null;
-    }
-
-    public WebSocketServletNegotiator getNegotiator(String rawSpec)
-    {
-        return getNegotiator(parsePathSpec(rawSpec));
-    }
-
-    /**
-     * Get the MappedResource for the given target path.
-     *
-     * @param target the target path
-     * @return the MappedResource if matched, or null if not matched.
-     */
-    public WebSocketCreator getMatch(String target)
-    {
-        MappedResource<WebSocketServletNegotiator> match = getMatchedResource(target);
-        if(match == null || match.getResource() == null)
-            return null;
-
-        return match.getResource().getCreator();
-    }
 
     /**
      * Get the matching {@link MappedResource} for the provided target.
@@ -342,15 +274,16 @@ public class WebSocketServletFactory implements FrameHandlerFactory, Dumpable, F
      * @param target the target path
      * @return the matching resource, or null if no match.
      */
-    public MappedResource<WebSocketServletNegotiator> getMatchedResource(String target)
+    public WebSocketNegotiator getMatchedNegotiator(String target, Consumer<PathSpec> pathSpecConsumer)
     {
-        MappedResource<WebSocketServletNegotiator> mapping = this.mappings.getMatch(target);
+        MappedResource<WebSocketNegotiator> mapping = this.mappings.getMatch(target);
         if (mapping == null)
         {
             return null;
         }
 
-        return mapping;
+        pathSpecConsumer.accept(mapping.getPathSpec());
+        return mapping.getResource();
     }
 
     /**
@@ -390,32 +323,6 @@ public class WebSocketServletFactory implements FrameHandlerFactory, Dumpable, F
         // TODO: perhaps via "fully.qualified.class.name|spec" style syntax
 
         throw new IllegalArgumentException("Unrecognized path spec syntax [" + rawSpec + "]");
-    }
-
-    /**
-     * Removes the mapping based on the given path spec.
-     *
-     * @param pathSpec the pathspec to respond on
-     * @return true if underlying mapping were altered, false otherwise
-     */
-    public boolean removeMapping(PathSpec pathSpec)
-    {
-        boolean removed = false;
-        for (Iterator<MappedResource<WebSocketServletNegotiator>> iterator = mappings.iterator(); iterator.hasNext(); )
-        {
-            MappedResource<WebSocketServletNegotiator> mapping = iterator.next();
-            if (mapping.getPathSpec().equals(pathSpec))
-            {
-                iterator.remove();
-                removed = true;
-            }
-        }
-        return removed;
-    }
-
-    public boolean removeMapping(String rawSpec)
-    {
-        return removeMapping(parsePathSpec(rawSpec));
     }
 
     @Override

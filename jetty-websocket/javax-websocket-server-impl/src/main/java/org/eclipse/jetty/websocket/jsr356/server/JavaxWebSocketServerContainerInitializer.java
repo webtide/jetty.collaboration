@@ -27,7 +27,7 @@ import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadClassLoaderScope;
 import org.eclipse.jetty.websocket.servlet.WebSocketUpgradeFilter;
-import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
+import org.eclipse.jetty.websocket.servlet.WebSocketNegotiatorMap;
 
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
@@ -141,7 +141,7 @@ public class JavaxWebSocketServerContainerInitializer implements ServletContaine
     public static JavaxWebSocketServerContainer configureContext(ServletContextHandler context) throws ServletException
     {
         WebSocketUpgradeFilter.configureContext(context);
-        WebSocketServletFactory webSocketServletFactory = (WebSocketServletFactory) context.getAttribute(WebSocketServletFactory.class.getName());
+        WebSocketNegotiatorMap webSocketNegotiatorMap = (WebSocketNegotiatorMap) context.getAttribute(WebSocketNegotiatorMap.class.getName());
 
         Executor executor = (Executor) context.getAttribute("org.eclipse.jetty.server.Executor");
 
@@ -170,11 +170,11 @@ public class JavaxWebSocketServerContainerInitializer implements ServletContaine
         }
 
         // Create the Jetty ServerContainer implementation
-        JavaxWebSocketServerContainer jettyContainer = new JavaxWebSocketServerContainer(webSocketServletFactory, httpClient, executor);
+        JavaxWebSocketServerContainer jettyContainer = new JavaxWebSocketServerContainer(webSocketNegotiatorMap, httpClient, executor);
         context.addBean(jettyContainer);
 
         // Add FrameHandlerFactory to servlet container for this JSR container
-        webSocketServletFactory.addFrameHandlerFactory(jettyContainer.getFrameHandlerFactory());
+        webSocketNegotiatorMap.addFrameHandlerFactory(jettyContainer.getFrameHandlerFactory());
 
         // Store a reference to the ServerContainer per - javax.websocket spec 1.0 final - section 6.4: Programmatic Server Deployment
         context.setAttribute(javax.websocket.server.ServerContainer.class.getName(),jettyContainer);

@@ -18,12 +18,11 @@
 
 package org.eclipse.jetty.websocket.servlet;
 
-import org.eclipse.jetty.http.pathmap.MappedResource;
 import org.eclipse.jetty.http.pathmap.PathSpec;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.websocket.core.server.Handshaker;
-import org.eclipse.jetty.websocket.servlet.internal.WebSocketServletNegotiator;
+import org.eclipse.jetty.websocket.core.server.WebSocketNegotiator;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -36,7 +35,7 @@ import java.time.Duration;
 /**
  * Abstract Servlet used to bridge the Servlet API to the WebSocket API.
  * <p>
- * To use this servlet, you will be required to register your websockets with the {@link WebSocketServletFactory} so that it can create your websockets under the
+ * To use this servlet, you will be required to register your websockets with the {@link WebSocketNegotiatorMap} so that it can create your websockets under the
  * appropriate conditions.
  * <p>
  * The most basic implementation would be as follows.
@@ -60,7 +59,7 @@ import java.time.Duration;
  * }
  * </pre>
  * <p>
- * Note: that only request that conforms to a "WebSocket: Upgrade" handshake request will trigger the {@link WebSocketServletFactory} handling of creating
+ * Note: that only request that conforms to a "WebSocket: Upgrade" handshake request will trigger the {@link WebSocketNegotiatorMap} handling of creating
  * WebSockets.<br>
  * All other requests are treated as normal servlet requests.
  * <p>
@@ -85,10 +84,10 @@ import java.time.Duration;
 public abstract class WebSocketServlet extends HttpServlet
 {
     private static final Logger LOG = Log.getLogger(WebSocketServlet.class);
-    private WebSocketServletFactory factory;
+    private WebSocketNegotiatorMap factory;
     private final Handshaker handshaker = Handshaker.newInstance();
 
-    public abstract void configure(WebSocketServletFactory factory);
+    public abstract void configure(WebSocketNegotiatorMap factory);
 
     /**
      * @see javax.servlet.GenericServlet#init()
@@ -100,7 +99,7 @@ public abstract class WebSocketServlet extends HttpServlet
         {
             ServletContext ctx = getServletContext();
 
-            factory = new WebSocketServletFactory();
+            factory = new WebSocketNegotiatorMap();
             factory.setContextClassLoader(ctx.getClassLoader());
             String max = getInitParameter("maxIdleTime");
             if (max != null)
@@ -146,7 +145,7 @@ public abstract class WebSocketServlet extends HttpServlet
 
             configure(factory); // Let user modify factory
 
-            ctx.setAttribute(WebSocketServletFactory.class.getName(), factory);
+            ctx.setAttribute(WebSocketNegotiatorMap.class.getName(), factory);
         }
         catch (Throwable x)
         {
@@ -169,19 +168,19 @@ public abstract class WebSocketServlet extends HttpServlet
             target = target + request.getPathInfo();
         }
 
-        MappedResource<WebSocketServletNegotiator> resource = factory.getMatchedResource(target);
-        if (resource != null)
+        WebSocketNegotiator negotiator = factory.getMatchedNegotiator(target,pathSpec ->
+        {
+            // Store PathSpec resource mapping as request attribute, for WebSocketCreator
+            // implementors to use later if they wish
+            request.setAttribute(PathSpec.class.getName(), pathSpec);
+        });
+
+        if (negotiator != null)
         {
             if (LOG.isDebugEnabled())
             {
-                LOG.debug("WebSocket Upgrade detected on {} for endpoint {}", target, resource);
+                LOG.debug("WebSocket Upgrade detected on {} for endpoint {}", target, negotiator);
             }
-
-            WebSocketServletNegotiator negotiator = resource.getResource();
-
-            // Store PathSpec resource mapping as request attribute, for WebSocketCreator
-            // implementors to use later if they wish
-            request.setAttribute(PathSpec.class.getName(), resource.getPathSpec());
 
             // Attempt to upgrade
             if (handshaker.upgradeRequest(negotiator, request, response))
