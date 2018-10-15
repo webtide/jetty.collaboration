@@ -30,7 +30,6 @@ import org.eclipse.jetty.util.component.Dumpable;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.websocket.core.server.Handshaker;
-import org.eclipse.jetty.websocket.servlet.internal.WebSocketServletFactoryImpl;
 import org.eclipse.jetty.websocket.servlet.internal.WebSocketServletNegotiator;
 
 import javax.servlet.DispatcherType;
@@ -74,7 +73,7 @@ public class WebSocketUpgradeFilter implements Filter, Dumpable
             return filter;
         }
 
-        WebSocketServletFactoryImpl factory = new WebSocketServletFactoryImpl();
+        WebSocketServletFactory factory = new WebSocketServletFactory();
         context.setAttribute(WebSocketServletFactory.class.getName(), factory);
 
         // Dynamically add filter
@@ -123,17 +122,17 @@ public class WebSocketUpgradeFilter implements Filter, Dumpable
         return configureContext((ServletContextHandler) handler);
     }
 
-    private final WebSocketServletFactoryImpl factory;
+    private final WebSocketServletFactory factory;
     private String instanceKey;
     private boolean alreadySetToAttribute = false;
 
     @SuppressWarnings("unused")
     public WebSocketUpgradeFilter()
     {
-        this(new WebSocketServletFactoryImpl());
+        this(new WebSocketServletFactory());
     }
 
-    public WebSocketUpgradeFilter(WebSocketServletFactoryImpl factory)
+    public WebSocketUpgradeFilter(WebSocketServletFactory factory)
     {
         this.factory = factory;
     }

@@ -23,7 +23,6 @@ import org.eclipse.jetty.http.pathmap.PathSpec;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.websocket.core.server.Handshaker;
-import org.eclipse.jetty.websocket.servlet.internal.WebSocketServletFactoryImpl;
 import org.eclipse.jetty.websocket.servlet.internal.WebSocketServletNegotiator;
 
 import javax.servlet.ServletContext;
@@ -37,7 +36,7 @@ import java.time.Duration;
 /**
  * Abstract Servlet used to bridge the Servlet API to the WebSocket API.
  * <p>
- * To use this servlet, you will be required to register your websockets with the {@link WebSocketServletFactoryImpl} so that it can create your websockets under the
+ * To use this servlet, you will be required to register your websockets with the {@link WebSocketServletFactory} so that it can create your websockets under the
  * appropriate conditions.
  * <p>
  * The most basic implementation would be as follows.
@@ -61,7 +60,7 @@ import java.time.Duration;
  * }
  * </pre>
  * <p>
- * Note: that only request that conforms to a "WebSocket: Upgrade" handshake request will trigger the {@link WebSocketServletFactoryImpl} handling of creating
+ * Note: that only request that conforms to a "WebSocket: Upgrade" handshake request will trigger the {@link WebSocketServletFactory} handling of creating
  * WebSockets.<br>
  * All other requests are treated as normal servlet requests.
  * <p>
@@ -86,7 +85,7 @@ import java.time.Duration;
 public abstract class WebSocketServlet extends HttpServlet
 {
     private static final Logger LOG = Log.getLogger(WebSocketServlet.class);
-    private WebSocketServletFactoryImpl factory;
+    private WebSocketServletFactory factory;
     private final Handshaker handshaker = Handshaker.newInstance();
 
     public abstract void configure(WebSocketServletFactory factory);
@@ -101,7 +100,7 @@ public abstract class WebSocketServlet extends HttpServlet
         {
             ServletContext ctx = getServletContext();
 
-            factory = new WebSocketServletFactoryImpl();
+            factory = new WebSocketServletFactory();
             factory.setContextClassLoader(ctx.getClassLoader());
             String max = getInitParameter("maxIdleTime");
             if (max != null)

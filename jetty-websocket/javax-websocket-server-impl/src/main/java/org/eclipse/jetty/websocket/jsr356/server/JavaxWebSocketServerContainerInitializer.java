@@ -26,9 +26,8 @@ import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadClassLoaderScope;
-import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.eclipse.jetty.websocket.servlet.WebSocketUpgradeFilter;
-import org.eclipse.jetty.websocket.servlet.internal.WebSocketServletFactoryImpl;
+import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
@@ -142,7 +141,7 @@ public class JavaxWebSocketServerContainerInitializer implements ServletContaine
     public static JavaxWebSocketServerContainer configureContext(ServletContextHandler context) throws ServletException
     {
         WebSocketUpgradeFilter.configureContext(context);
-        WebSocketServletFactoryImpl webSocketServletFactory = (WebSocketServletFactoryImpl) context.getAttribute(WebSocketServletFactory.class.getName());
+        WebSocketServletFactory webSocketServletFactory = (WebSocketServletFactory) context.getAttribute(WebSocketServletFactory.class.getName());
 
         Executor executor = (Executor) context.getAttribute("org.eclipse.jetty.server.Executor");
 

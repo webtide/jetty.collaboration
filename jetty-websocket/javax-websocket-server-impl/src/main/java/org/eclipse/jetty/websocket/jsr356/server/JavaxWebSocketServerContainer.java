@@ -34,7 +34,7 @@ import org.eclipse.jetty.websocket.jsr356.client.JavaxWebSocketClientContainer;
 import org.eclipse.jetty.websocket.jsr356.server.internal.AnnotatedServerEndpointConfig;
 import org.eclipse.jetty.websocket.jsr356.server.internal.JavaxWebSocketCreator;
 import org.eclipse.jetty.websocket.jsr356.server.internal.UndefinedServerEndpointConfig;
-import org.eclipse.jetty.websocket.servlet.internal.WebSocketServletFactoryImpl;
+import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
 import javax.websocket.DeploymentException;
 import javax.websocket.EndpointConfig;
@@ -73,7 +73,7 @@ public class JavaxWebSocketServerContainer extends JavaxWebSocketClientContainer
         return (javax.websocket.WebSocketContainer) handler.getServletContext().getAttribute("javax.websocket.server.ServerContainer");
     }
 
-    private final WebSocketServletFactoryImpl webSocketServletFactory;
+    private final WebSocketServletFactory webSocketServletFactory;
     private final JavaxWebSocketServerFrameHandlerFactory frameHandlerFactory;
     private final Executor executor;
     private long asyncSendTimeout = -1;
@@ -83,10 +83,10 @@ public class JavaxWebSocketServerContainer extends JavaxWebSocketClientContainer
     /**
      * Main entry point for {@link JavaxWebSocketServerContainerInitializer}.
      *
-     * @param webSocketServletFactory the {@link org.eclipse.jetty.websocket.servlet.WebSocketServletFactory} that this container belongs to
+     * @param webSocketServletFactory the {@link WebSocketServletFactory} that this container belongs to
      * @param httpClient the {@link HttpClient} instance to use
      */
-    public JavaxWebSocketServerContainer(WebSocketServletFactoryImpl webSocketServletFactory, HttpClient httpClient, Executor executor)
+    public JavaxWebSocketServerContainer(WebSocketServletFactory webSocketServletFactory, HttpClient httpClient, Executor executor)
     {
         super(new WebSocketCoreClient(httpClient));
         this.coreClient.addBean(httpClient, false);

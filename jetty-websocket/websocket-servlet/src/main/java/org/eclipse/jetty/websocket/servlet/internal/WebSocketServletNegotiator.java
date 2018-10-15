@@ -28,21 +28,22 @@ import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
-import org.eclipse.jetty.websocket.servlet.WebSocketServletFrameHandlerFactory;
+import org.eclipse.jetty.websocket.servlet.FrameHandlerFactory;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
-public class WebSocketServletNegotiator implements WebSocketNegotiator
+public class WebSocketServletNegotiator extends WebSocketNegotiator.AbstractNegotiator
 {
-    private final WebSocketServletFactoryImpl factory;
+    private final WebSocketServletFactory factory;
     private final WebSocketCreator creator;
-    private final WebSocketServletFrameHandlerFactory frameHandlerFactory;
+    private final FrameHandlerFactory frameHandlerFactory;
 
-    public WebSocketServletNegotiator(WebSocketServletFactoryImpl factory, WebSocketCreator creator, WebSocketServletFrameHandlerFactory frameHandlerFactory)
+    public WebSocketServletNegotiator(WebSocketServletFactory factory, WebSocketCreator creator, FrameHandlerFactory frameHandlerFactory)
     {
+        super(factory.getExtensionRegistry(), factory.getObjectFactory(), factory.getBufferPool(), factory::customize);
         this.factory = factory;
         this.creator = creator;
         this.frameHandlerFactory = frameHandlerFactory;
@@ -94,29 +95,5 @@ public class WebSocketServletNegotiator implements WebSocketNegotiator
         {
             Thread.currentThread().setContextClassLoader(old);
         }
-    }
-
-    @Override
-    public void customize(FrameHandler.CoreSession session)
-    {
-        factory.customize(session);
-    }
-
-    @Override
-    public WebSocketExtensionRegistry getExtensionRegistry()
-    {
-        return factory.getExtensionRegistry();
-    }
-
-    @Override
-    public DecoratedObjectFactory getObjectFactory()
-    {
-        return factory.getObjectFactory();
-    }
-
-    @Override
-    public ByteBufferPool getByteBufferPool()
-    {
-        return factory.getBufferPool();
     }
 }
