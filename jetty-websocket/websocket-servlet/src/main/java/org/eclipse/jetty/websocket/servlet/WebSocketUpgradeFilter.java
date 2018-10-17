@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.EnumSet;
 
 /**
@@ -224,8 +225,8 @@ public class WebSocketUpgradeFilter implements Filter, Dumpable
     @Override
     public void dump(Appendable out, String indent) throws IOException
     {
-        out.append(indent).append(" +- factory=").append(factory.toString()).append("\n");
-        factory.dump(out, indent);
+        ContainerLifeCycle.dumpObject(out,this);
+        ContainerLifeCycle.dump(out,indent, Collections.singletonList(factory) );
     }
 
     @ManagedAttribute(value = "factory", readonly = true)
@@ -327,11 +328,5 @@ public class WebSocketUpgradeFilter implements Filter, Dumpable
         context.setAttribute(key, this);
 
         alreadySetToAttribute = true;
-    }
-
-    @Override
-    public String toString()
-    {
-        return String.format("%s[factory=%s]", this.getClass().getSimpleName(), factory);
     }
 }
