@@ -18,17 +18,6 @@
 
 package org.eclipse.jetty;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.server.ForwardedRequestCustomizer;
@@ -47,14 +36,25 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.session.FileSessionDataStore;
 import org.eclipse.jetty.server.session.DefaultSessionCache;
+import org.eclipse.jetty.server.session.FileSessionDataStore;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.log.StdErrLog;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.webapp.Configurations;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.jupiter.api.Disabled;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @Disabled("Not a test case")
 public class TestServer
@@ -78,6 +78,7 @@ public class TestServer
 
         // Setup server
         Server server = new Server(threadPool);
+        Configurations.setServerDefault(server);
         server.manage(threadPool);
 
         // Setup JMX
@@ -155,6 +156,9 @@ public class TestServer
         contexts.addHandler(srcroot);
 
         server.start();
+
+        server.dumpStdErr();
+
         server.join();
     }
 
