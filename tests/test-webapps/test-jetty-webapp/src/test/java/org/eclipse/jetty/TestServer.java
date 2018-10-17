@@ -156,7 +156,6 @@ public class TestServer
         contexts.addHandler(srcroot);
 
         server.start();
-
         server.dumpStdErr();
 
         server.join();
