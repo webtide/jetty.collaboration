@@ -44,8 +44,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-@HandlesTypes(
-{ ServerApplicationConfig.class, ServerEndpoint.class, Endpoint.class })
+@HandlesTypes({ ServerApplicationConfig.class, ServerEndpoint.class, Endpoint.class })
 public class JavaxWebSocketServerContainerInitializer implements ServletContainerInitializer
 {
     public static final String ENABLE_KEY = "org.eclipse.jetty.websocket.jsr356";
