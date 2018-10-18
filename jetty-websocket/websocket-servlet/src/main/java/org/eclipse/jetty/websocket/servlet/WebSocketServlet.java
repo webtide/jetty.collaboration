@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.List;
 
 /**
  * Abstract Servlet used to bridge the Servlet API to the WebSocket API.
@@ -142,6 +143,10 @@ public abstract class WebSocketServlet extends HttpServlet
             {
                 factory.setAutoFragment(Boolean.parseBoolean(autoFragment));
             }
+
+            List<FrameHandlerFactory> factories = (List<FrameHandlerFactory>) ctx.getAttribute(FrameHandlerFactory.ATTR_HANDLERS);
+            if (factories!=null)
+                factories.forEach(factory::addFrameHandlerFactory);
 
             configure(factory); // Let user modify factory
 

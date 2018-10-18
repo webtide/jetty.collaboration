@@ -72,10 +72,12 @@ public class JettyWebSocketServletContainerInitializer implements ServletContain
     @Override
     public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException
     {
+        // TODO why doesn't the javax side share this approach?
         List<FrameHandlerFactory> factories = (List<FrameHandlerFactory>) ctx.getAttribute(FrameHandlerFactory.ATTR_HANDLERS);
         if(factories == null)
         {
             factories = new ArrayList<>();
+            ctx.setAttribute(FrameHandlerFactory.ATTR_HANDLERS,factories);
         }
 
         Executor executor = (Executor) ctx.getAttribute("org.eclipse.jetty.server.Executor");

@@ -116,9 +116,7 @@ public class TestServer
         // Add restart handler to test the ability to save sessions and restart
         RestartHandler restart = new RestartHandler();
         restart.setHandler(handlers);
-
         server.setHandler(restart);
-
 
         // Setup context
         HashLoginService login = new HashLoginService();
@@ -141,8 +139,6 @@ public class TestServer
             ".*/test-jetty-webapp/target/classes.*$|" +
             ".*/[^/]*servlet-api-[^/]*\\.jar$|.*/javax.servlet.jsp.jstl-.*\\.jar$|.*/org.apache.taglibs.taglibs-standard-impl-.*\\.jar$"
         );
-
-        System.err.println(webapp.getAttribute(MetaInfConfiguration.CONTAINER_JAR_PATTERN));
 
         webapp.setAttribute("testAttribute","testValue");
         File sessiondir=File.createTempFile("sessions",null);
